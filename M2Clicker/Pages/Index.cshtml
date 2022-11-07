@@ -17,7 +17,23 @@
 
 <script>
     const player = {x:200, y:200};
-    const spawnPoints = [{ x: 100, y: 100 }, { x: 300, y: 100 }, { x: 100, y: 300 }, { x: 300, y: 300 }];
+    const spawnPoints = [{ x: 100, y: 100, mobGroups: [] }, 
+        { x: 300, y: 100, mobGroups: [] }, 
+        { x: 100, y: 300, mobGroups: [] }, 
+        { x: 300, y: 300, mobGroups: [] }];
+
+    
+    spawnPoints.forEach(e => {
+        for(var i = 0; i<3; i++) {
+            var temp = getRandomCordsInRadius(e.x, e.y, 80);
+            e.mobGroups.push({ groupId: i, mobs: [], x: temp[0] , y: temp[1] });
+            for (var j = 0; j<3; j++){
+                var temp = getRandomCordsInRadius(e.mobGroups[i].x, e.mobGroups[i].y, 40);
+                e.mobGroups[i].mobs.push({mobId: j, mobName: "Pies", mobHp : 100, x: temp[0], y: temp[1], activity: 0, 
+                toX: 0, toY: 0, steps: 0, a: 0, b: 0});
+            }
+        }
+    });
     //BIG INIT TODO
     function onInit(){
         //Pobierz lokacje gracza i dodaj do obiektu
@@ -111,40 +127,139 @@
         ctx.fillRect(0,0, canvas.clientWidth, canvas.clientHeight)
         drawPlayer();
         drawSpawnPoints();
-        //drawMobs();
+        drawMobs();
 
         setTimeout(mapAnim, 20);
     }
 
     function drawPlayer(){
         ctx.fillStyle = "blue";
-        ctx.fillRect(player.x,player.y,5,5);
+        ctx.fillRect(player.x - 2.5 ,player.y - 2.5 ,5,5);
     }
 
     function drawSpawnPoints(){
 
         spawnPoints.forEach(e => {
-            if (((player.x - e.x) * (player.x - e.x) + (player.y - e.y) * (player.y - e.y)) < 2020 ) ctx.fillStyle = "red";
-            else ctx.fillStyle = "yellow";
 
-            ctx.fillRect(e.x, e.y, 5, 5);
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(e.x - 2.5 , e.y - 2.5 , 5, 5);
+            
+            ctx.beginPath();
+            ctx.strokeStyle = "white";
+            ctx.arc(e.x, e.y, 45, 0, 2 * Math.PI);
+            ctx.stroke(); 
+
+            ctx.beginPath();
+            ctx.strokeStyle = "pink";
+            ctx.arc(e.x, e.y, 80, 0, 2 * Math.PI);
+            ctx.stroke(); 
 
         });
     }
 
+    function drawMobs(){
+
+        spawnPoints.forEach(e => {
+            
+
+            e.mobGroups.forEach(f => {
+
+                ctx.fillStyle = "pink";
+                ctx.fillRect(f.x - 2.5 , f.y - 2.5 , 5, 5);
+
+                ctx.beginPath();
+                ctx.strokeStyle = "red";
+                ctx.arc(f.x, f.y, 40, 0, 2 * Math.PI);
+                ctx.stroke(); 
+
+                f.mobs.forEach(g => {
+
+                    if (((player.x - g.x) * (player.x - g.x) + (player.y - g.y) * (player.y - g.y)) < Math.pow(20,2) ) ctx.fillStyle = "orange";
+                    else ctx.fillStyle = "red";
+                    ctx.fillRect(g.x, g.y, 5, 5);
+
+                });
+
+            });
+
+        });
+
+    }
+
     function mapAnim(){
         if (walking) {
-            if (player.x != x) player.x > x ? player.x -=ilekrokow : player.x +=ilekrokow;
-            if (player.y != y) player.y = a*player.x+b;
+            if (player.x != x) {
+                player.x > x ? player.x -=ilekrokow : player.x +=ilekrokow;
+                //if (player.y != y) player.y = a*player.x+b;
+                player.y = a*player.x+b;
+            }
             if (Math.round(player.x) == x && Math.round(player.y) == y) walking = false;
 
             player
         }
 
+        spawnPoints.forEach(e =>{
+
+            e.mobGroups.forEach(f =>{
+                
+                f.mobs.forEach(g => {
+
+                    if(g.activity==0) {
+
+                        if (Math.random()> 0.995) {
+                            g.activity = 1;
+                            var temp = getRandomCordsInRadius(f.x, f.y, 40);
+                            g.toX = temp[0]; g.toY = temp[1];
+
+                            g.a = (g.toY-g.y)/(g.toX-g.x);
+                            g.b = g.toY-(g.a*g.toX);
+
+                            var distance = Math.pow(Math.pow(g.x - g.toX, 2) + Math.pow(g.y - g.toY, 2), 1 / 2); 
+                            g.steps = Math.abs(g.toX-g.x) / Math.ceil(distance); 
+
+                        }
+                    }
+                    if(g.activity == 1) {
+                        
+                        if (g.x != g.toX) {
+                            g.x > g.toX ? g.x -= g.steps : g.x += g.steps;
+
+                            g.y = g.a*g.x+g.b;
+                            }
+                        if (Math.abs(g.x - g.toX) < 1) g.activity = 0;
+
+
+
+
+                    }
+
+                });
+
+
+
+            });
         
+        });
 
         drawAll();
     }
 
     drawAll();
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getRandomCordsInRadius(x, y, r) {
+        let ang = Math.random() * 2 * Math.PI,
+            hyp = Math.sqrt(Math.random()) * r,
+            adj = Math.cos(ang) * hyp,
+            opp = Math.sin(ang) * hyp;
+        
+        
+        return [x + adj, y + opp];
+
+    }
 </script>
