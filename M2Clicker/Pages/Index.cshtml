@@ -1,0 +1,150 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+
+    <canvas id="myTestCanvas" width="400" height="400" style="border:1px solid #000000;">
+        Your browser does not support the HTML canvas tag.
+    </canvas>
+    <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
+        Your browser does not support the HTML canvas tag.
+    </canvas>
+
+</div>
+
+<script>
+    const player = {x:200, y:200};
+    const spawnPoints = [{ x: 100, y: 100 }, { x: 300, y: 100 }, { x: 100, y: 300 }, { x: 300, y: 300 }];
+    //BIG INIT TODO
+    function onInit(){
+        //Pobierz lokacje gracza i dodaj do obiektu
+
+        //Pobierz spawnpointy i stwórz z nich listę obiektów
+
+        //Zespawnuj mobki na niektórych spawnpointach
+    }
+
+    { //TEST HERE
+        var tCanvas = document.getElementById("myTestCanvas");
+        var tCtx = tCanvas.getContext("2d");
+
+    
+        let offset = 0;
+
+        function init() {
+            tCtx.fillRect(175, 175, 50, 50);
+            tCtx.clearRect(175, 175, 20+offset, 20+offset);
+
+            tCtx.beginPath();
+            tCtx.moveTo(75, 50);
+            tCtx.lineTo(100, 75);
+            tCtx.lineTo(100, 25);
+            tCtx.fill();
+
+            tCtx.beginPath();
+            tCtx.strokeStyle = 'orange';
+            tCtx.moveTo(175, 50);
+            tCtx.lineTo(200, 75);
+            tCtx.lineTo(200, 25);
+            tCtx.lineTo(175,50);
+            tCtx.stroke();
+            tCtx.closePath();
+
+            tCtx.beginPath();
+            tCtx.moveTo(275, 50);
+            tCtx.lineTo(300, 75);
+            tCtx.lineTo(300, 25);
+            tCtx.lineTo(275, 50);
+            tCtx.stroke();
+            tCtx.closePath();
+            setTimeout(test, 200);
+        }
+
+        function test(){
+            offset++;
+            if (offset>20) offset = 0;
+            init();
+
+        }
+
+        init();
+    }
+
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    var walking = false;
+    var x = 0;
+    var y = 0;
+    var a = 0;
+    var b = 0;
+    var ilekrokow;
+    canvas.addEventListener("click", onClick);
+
+    function onClick(e){
+
+        walking = true;
+
+        getMousePos(canvas, e);
+
+    }
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        
+        x = (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width;
+        y = (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height;
+        x = Math.round(x); y = Math.round(y);
+
+        a = (y-player.y)/(x-player.x);
+        b = y-(a*x);
+
+        var distance = Math.pow(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2), 1 / 2); 
+        ilekrokow = Math.abs(x-player.x) / Math.ceil(distance / 2); //PRĘDKOŚĆ PORUSZANIA, 10ms-1j, dlatego distance*10(aby uzyskać ms potrzebne do pokonania takiego dystansu) /20 (krok animacji jest co 20ms);
+    }
+
+    function drawAll(){
+        ctx.fillStyle= "black";
+        ctx.fillRect(0,0, canvas.clientWidth, canvas.clientHeight)
+        drawPlayer();
+        drawSpawnPoints();
+        //drawMobs();
+
+        setTimeout(mapAnim, 20);
+    }
+
+    function drawPlayer(){
+        ctx.fillStyle = "blue";
+        ctx.fillRect(player.x,player.y,5,5);
+    }
+
+    function drawSpawnPoints(){
+
+        spawnPoints.forEach(e => {
+            if (((player.x - e.x) * (player.x - e.x) + (player.y - e.y) * (player.y - e.y)) < 2020 ) ctx.fillStyle = "red";
+            else ctx.fillStyle = "yellow";
+
+            ctx.fillRect(e.x, e.y, 5, 5);
+
+        });
+    }
+
+    function mapAnim(){
+        if (walking) {
+            if (player.x != x) player.x > x ? player.x -=ilekrokow : player.x +=ilekrokow;
+            if (player.y != y) player.y = a*player.x+b;
+            if (Math.round(player.x) == x && Math.round(player.y) == y) walking = false;
+
+            player
+        }
+
+        
+
+        drawAll();
+    }
+
+    drawAll();
+</script>
