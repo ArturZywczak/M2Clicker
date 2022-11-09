@@ -4,11 +4,7 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-
-    <canvas id="myTestCanvas" width="400" height="400" style="border:1px solid #000000;">
-        Your browser does not support the HTML canvas tag.
-    </canvas>
+<div class="text-center" oncontextmenu="return false;">
     <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
         Your browser does not support the HTML canvas tag.
     </canvas>
@@ -20,23 +16,15 @@
 <script src="~/js/models.js" asp-append-version="true"></script>
 <script>
     const player = new Player("Gracz", new Position(200,250));
-    const spawnPoints = [{ x: 100, y: 100, mobGroups: [] }, 
-        { x: 300, y: 100, mobGroups: [] }, 
-        { x: 100, y: 300, mobGroups: [] }, 
-        { x: 300, y: 300, mobGroups: [] }];
-
-    
+    const spawnPoints = [new SpawnPoint(100,100),
+        new SpawnPoint(300,100),
+        new SpawnPoint(100,300),
+        new SpawnPoint(300,300)
+    ];
     spawnPoints.forEach(e => {
-        for(var i = 0; i<3; i++) {
-            var temp = getRandomCordsInRadius(e.x, e.y, 80);
-            e.mobGroups.push({ groupId: i, mobs: [], x: temp[0] , y: temp[1] });
-            for (var j = 0; j<3; j++){
-                var temp = getRandomCordsInRadius(e.mobGroups[i].x, e.mobGroups[i].y, 40);
-                e.mobGroups[i].mobs.push({mobId: j, mobName: "Pies", mobHp : 100, x: temp[0], y: temp[1], activity: 0, 
-                toX: 0, toY: 0, steps: 0, a: 0, b: 0});
-            }
-        }
+        for (var i = 0; i<3; i++) e.addMobGroup();
     });
+    
     //BIG INIT TODO
     function onInit(){
         //Pobierz lokacje gracza i dodaj do obiektu
@@ -46,52 +34,6 @@
         //Zespawnuj mobki na niektórych spawnpointach
     }
 
-    { //TEST HERE
-        var tCanvas = document.getElementById("myTestCanvas");
-        var tCtx = tCanvas.getContext("2d");
-
-    
-        let offset = 0;
-
-        function init() {
-            tCtx.fillRect(175, 175, 50, 50);
-            tCtx.clearRect(175, 175, 20+offset, 20+offset);
-
-            tCtx.beginPath();
-            tCtx.moveTo(75, 50);
-            tCtx.lineTo(100, 75);
-            tCtx.lineTo(100, 25);
-            tCtx.fill();
-
-            tCtx.beginPath();
-            tCtx.strokeStyle = 'orange';
-            tCtx.moveTo(175, 50);
-            tCtx.lineTo(200, 75);
-            tCtx.lineTo(200, 25);
-            tCtx.lineTo(175,50);
-            tCtx.stroke();
-            tCtx.closePath();
-
-            tCtx.beginPath();
-            tCtx.moveTo(275, 50);
-            tCtx.lineTo(300, 75);
-            tCtx.lineTo(300, 25);
-            tCtx.lineTo(275, 50);
-            tCtx.stroke();
-            tCtx.closePath();
-            setTimeout(test, 200);
-        }
-
-        function test(){
-            offset++;
-            if (offset>20) offset = 0;
-            init();
-
-        }
-
-        init();
-    }
-
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
 
@@ -99,7 +41,7 @@
 
     function onClick(e){
 
-        player.pos.goto(getMousePos(canvas,e));
+        player.goTo(getMousePos(canvas,e));
 
     }
 
@@ -135,7 +77,6 @@
             ctx.strokeStyle = "pink";
             ctx.arc(e.x, e.y, 80, 0, 2 * Math.PI);
             ctx.stroke(); 
-
         });
     }
 
@@ -143,7 +84,6 @@
 
         spawnPoints.forEach(e => {
             
-
             e.mobGroups.forEach(f => {
 
                 ctx.fillStyle = "pink";
@@ -156,71 +96,37 @@
 
                 f.mobs.forEach(g => {
 
-                    if (((player.pos.x - g.x) * (player.pos.x - g.x) + (player.pos.y - g.y) * (player.pos.y - g.y)) < Math.pow(20,2) ) ctx.fillStyle = "orange";
+                    if (isInRange(player,g,20)) ctx.fillStyle = "orange";
                     else ctx.fillStyle = "red";
-                    ctx.fillRect(g.x, g.y, 5, 5);
+                    ctx.fillRect(g.pos.x, g.pos.y, 5, 5);
 
                 });
 
             });
 
         });
-
     }
 
     function mapAnim(){
 
-        if (player.pos.walking == true) player.pos.run();
+        if (player.pos.walking == true) player.run();
 
         spawnPoints.forEach(e =>{
 
             e.mobGroups.forEach(f =>{
                 
                 f.mobs.forEach(g => {
-
-                    if(g.activity==0) {
-
-                        if (Math.random()> 0.995) {
-                            g.activity = 1;
-                            var temp = getRandomCordsInRadius(f.x, f.y, 40);
-                            g.toX = temp[0]; g.toY = temp[1];
-
-                            g.a = (g.toY-g.y)/(g.toX-g.x);
-                            g.b = g.toY-(g.a*g.toX);
-
-                            var distance = Math.pow(Math.pow(g.x - g.toX, 2) + Math.pow(g.y - g.toY, 2), 1 / 2); 
-                            g.steps = Math.abs(g.toX-g.x) / Math.ceil(distance); 
-
-                        }
-                    }
-                    if(g.activity == 1) {
-                        
-                        if (g.x != g.toX) {
-                            g.x > g.toX ? g.x -= g.steps : g.x += g.steps;
-
-                            g.y = g.a*g.x+g.b;
-                            }
-                        if (Math.abs(g.x - g.toX) < 1) g.activity = 0;
-
-
-
-
-                    }
-
+                    if (!g.pos.walking && !g.pos.attacking)
+                        if (Math.random()> 0.995) 
+                            g.goTo(getRandomCordsInRadius(f.x,f.y,f.mobPosRadius));
+                    if (g.pos.walking) 
+                        g.run();
                 });
-
-
-
-            });
-        
+            });    
         });
 
         drawAll();
     }
 
     drawAll();
-
-   
-
-    
 </script>

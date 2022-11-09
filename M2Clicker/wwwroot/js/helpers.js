@@ -10,7 +10,7 @@ function getRandomCordsInRadius(x, y, r) {
         adj = Math.cos(ang) * hyp,
         opp = Math.sin(ang) * hyp;
 
-    return [x + adj, y + opp];
+    return new Position(x + adj, y + opp);
 
 }
 
@@ -22,4 +22,9 @@ function getMousePos(canvas, evt) {
     //x = Math.round(x); y = Math.round(y);
 
     return new Position(x,y);
+}
+
+function isInRange(unit1, unit2, range){
+    if (((unit1.pos.x - unit2.pos.x) * (unit1.pos.x - unit2.pos.x) + (unit1.pos.y - unit2.pos.y) * (unit1.pos.y - unit2.pos.y)) < Math.pow(range,2) ) return true;
+    else return false;
 }
