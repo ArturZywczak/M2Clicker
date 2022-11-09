@@ -1,11 +1,11 @@
 class MobGroup {
-    constructor(spawnPointX, spawnPointY){
+    constructor(spawnPointX, spawnPointY, testos){
 
         var tempPos = getRandomCordsInRadius(spawnPointX, spawnPointY, 80);
         this.x = tempPos.x; this.y = tempPos.y;
         //TEMP MOB SPAWN, wszystko wpisane na stałe
         for (var i = 0; i< 3; i++)
-        this.mobs.push(new Mob("Dziki pies", getRandomCordsInRadius(this.x, this.y, this.mobPosRadius)))
+        this.mobs.push(new Mob("Dziki pies", getRandomCordsInRadius(this.x, this.y, this.mobPosRadius), i + testos))
     }
     groupId;
     x;
@@ -17,26 +17,28 @@ class MobGroup {
 }
 
 class SpawnPoint {
-    constructor(newX, newY){
+    constructor(newX, newY, newId){
         this.x = newX;
         this.y = newY;
+        this.id = newId;
     }
 
     x;
     y;
+    id;
     mobGroups = [];
 
     addMobGroup(){
-        this.mobGroups.push(new MobGroup(this.x, this.y));
+        this.mobGroups.push(new MobGroup(this.x, this.y, this.id * 10));
     }
 
 }
 
 class Unit {
-    constructor(newName, newPos){
+    constructor(newName, newPos, newId){
         //TODO, tymczasowo jakieś losowe wartości
         //HERE PARSER Z JSONA?        
-        this.id = 1;
+        this.id = newId;
         this.name = newName;
         this.hp = 100;
         this.attackDmage = 5;
@@ -85,8 +87,8 @@ class Unit {
 }
 
 class Player extends Unit {
-    constructor(newName, newPos){
-        super(newName, newPos);
+    constructor(newName, newPos, newId){
+        super(newName, newPos, newId);
     }
 
     speed = 100;
@@ -94,8 +96,8 @@ class Player extends Unit {
 }
 
 class Mob extends Unit {
-    constructor(newName,newPos){
-        super(newName, newPos);
+    constructor(newName,newPos, newId){
+        super(newName, newPos, newId);
     }
 
     speed= 50;

@@ -11,25 +11,27 @@
       <label for="debugMode">Tryb Debugowania</label>
     </div>
 
+    <ul id="dynamic-list"></ul>
+
     <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
         Your browser does not support the HTML canvas tag.
     </canvas>
-
 </div>
 
 
 <script src="~/js/helpers.js" asp-append-version="true"></script>
 <script src="~/js/models.js" asp-append-version="true"></script>
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
     var debugMode = document.getElementById("debugMode").checked;
     function changeDebugMode(){
         debugMode = document.getElementById("debugMode").checked;
     }
-    const player = new Player("Gracz", new Position(200,250));
-    const spawnPoints = [new SpawnPoint(100,100),
-        new SpawnPoint(300,100),
-        new SpawnPoint(100,300),
-        new SpawnPoint(300,300)
+    const player = new Player("Gracz", new Position(200,250), 0);
+    const spawnPoints = [new SpawnPoint(100,100, 1),
+        new SpawnPoint(300,100, 2),
+        new SpawnPoint(100,300, 3),
+        new SpawnPoint(300,300, 4)
     ];
     spawnPoints.forEach(e => {
         for (var i = 0; i<3; i++) e.addMobGroup();
@@ -109,7 +111,18 @@
                 }
                 f.mobs.forEach(g => {
 
-                    if (isInRange(player,g,20) && debugMode) ctx.fillStyle = "orange";
+                    if (isInRange(player,g,20) && debugMode) {
+                        var ul = document.getElementById("dynamic-list");
+                        var found = false;
+                        ul.childNodes.forEach(h=> {
+                            if ((typeof h.dataset.mobid !== 'undefined') && h.dataset.mobid == g.id) {
+                                found = true;
+                            }
+
+                        });
+                        if (!found) addItem(g);
+                        ctx.fillStyle = "orange";
+                    }
                     else ctx.fillStyle = "red";
                     ctx.fillRect(g.pos.x, g.pos.y, 5, 5);
 
@@ -145,4 +158,16 @@
     }
 
     drawAll();
+
+function addItem(mob){
+    var ul = document.getElementById("dynamic-list");
+    var li = document.createElement("li");
+    li.setAttribute('id', "MobTest");
+    li.setAttribute('data-mobid', mob.id);
+    li.appendChild(document.createTextNode("Siema" + mob.name));
+    ul.appendChild(li);
+}
+
+
+
 </script>
