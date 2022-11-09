@@ -15,8 +15,11 @@
 
 </div>
 
+
+<script src="~/js/helpers.js" asp-append-version="true"></script>
+<script src="~/js/models.js" asp-append-version="true"></script>
 <script>
-    const player = {x:200, y:200};
+    const player = new Player("Gracz", new Position(200,250));
     const spawnPoints = [{ x: 100, y: 100, mobGroups: [] }, 
         { x: 300, y: 100, mobGroups: [] }, 
         { x: 100, y: 300, mobGroups: [] }, 
@@ -92,34 +95,12 @@
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
 
-    var walking = false;
-    var x = 0;
-    var y = 0;
-    var a = 0;
-    var b = 0;
-    var ilekrokow;
     canvas.addEventListener("click", onClick);
 
     function onClick(e){
 
-        walking = true;
+        player.pos.goto(getMousePos(canvas,e));
 
-        getMousePos(canvas, e);
-
-    }
-
-    function getMousePos(canvas, evt) {
-        var rect = canvas.getBoundingClientRect();
-        
-        x = (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width;
-        y = (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height;
-        x = Math.round(x); y = Math.round(y);
-
-        a = (y-player.y)/(x-player.x);
-        b = y-(a*x);
-
-        var distance = Math.pow(Math.pow(player.x - x, 2) + Math.pow(player.y - y, 2), 1 / 2); 
-        ilekrokow = Math.abs(x-player.x) / Math.ceil(distance / 2); //PRĘDKOŚĆ PORUSZANIA, 10ms-1j, dlatego distance*10(aby uzyskać ms potrzebne do pokonania takiego dystansu) /20 (krok animacji jest co 20ms);
     }
 
     function drawAll(){
@@ -133,8 +114,9 @@
     }
 
     function drawPlayer(){
+
         ctx.fillStyle = "blue";
-        ctx.fillRect(player.x - 2.5 ,player.y - 2.5 ,5,5);
+        ctx.fillRect(player.pos.x - 2.5 ,player.pos.y - 2.5 ,5,5);
     }
 
     function drawSpawnPoints(){
@@ -174,7 +156,7 @@
 
                 f.mobs.forEach(g => {
 
-                    if (((player.x - g.x) * (player.x - g.x) + (player.y - g.y) * (player.y - g.y)) < Math.pow(20,2) ) ctx.fillStyle = "orange";
+                    if (((player.pos.x - g.x) * (player.pos.x - g.x) + (player.pos.y - g.y) * (player.pos.y - g.y)) < Math.pow(20,2) ) ctx.fillStyle = "orange";
                     else ctx.fillStyle = "red";
                     ctx.fillRect(g.x, g.y, 5, 5);
 
@@ -187,16 +169,8 @@
     }
 
     function mapAnim(){
-        if (walking) {
-            if (player.x != x) {
-                player.x > x ? player.x -=ilekrokow : player.x +=ilekrokow;
-                //if (player.y != y) player.y = a*player.x+b;
-                player.y = a*player.x+b;
-            }
-            if (Math.round(player.x) == x && Math.round(player.y) == y) walking = false;
 
-            player
-        }
+        if (player.pos.walking == true) player.pos.run();
 
         spawnPoints.forEach(e =>{
 
@@ -246,20 +220,7 @@
 
     drawAll();
 
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+   
 
-    function getRandomCordsInRadius(x, y, r) {
-        let ang = Math.random() * 2 * Math.PI,
-            hyp = Math.sqrt(Math.random()) * r,
-            adj = Math.cos(ang) * hyp,
-            opp = Math.sin(ang) * hyp;
-        
-        
-        return [x + adj, y + opp];
-
-    }
+    
 </script>
