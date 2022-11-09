@@ -5,6 +5,12 @@
 }
 
 <div class="text-center" oncontextmenu="return false;">
+
+    <div>
+      <input type="checkbox" id="debugMode" name="debugMode" onchange="changeDebugMode()">
+      <label for="debugMode">Tryb Debugowania</label>
+    </div>
+
     <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
         Your browser does not support the HTML canvas tag.
     </canvas>
@@ -15,6 +21,10 @@
 <script src="~/js/helpers.js" asp-append-version="true"></script>
 <script src="~/js/models.js" asp-append-version="true"></script>
 <script>
+    var debugMode = document.getElementById("debugMode").checked;
+    function changeDebugMode(){
+        debugMode = document.getElementById("debugMode").checked;
+    }
     const player = new Player("Gracz", new Position(200,250));
     const spawnPoints = [new SpawnPoint(100,100),
         new SpawnPoint(300,100),
@@ -67,16 +77,18 @@
 
             ctx.fillStyle = "yellow";
             ctx.fillRect(e.x - 2.5 , e.y - 2.5 , 5, 5);
-            
-            ctx.beginPath();
-            ctx.strokeStyle = "white";
-            ctx.arc(e.x, e.y, 45, 0, 2 * Math.PI);
-            ctx.stroke(); 
 
-            ctx.beginPath();
-            ctx.strokeStyle = "pink";
-            ctx.arc(e.x, e.y, 80, 0, 2 * Math.PI);
-            ctx.stroke(); 
+            if (debugMode) {
+                ctx.beginPath();
+                ctx.strokeStyle = "white";
+                ctx.arc(e.x, e.y, 45, 0, 2 * Math.PI);
+                ctx.stroke(); 
+
+                ctx.beginPath();
+                ctx.strokeStyle = "pink";
+                ctx.arc(e.x, e.y, 80, 0, 2 * Math.PI);
+                ctx.stroke(); 
+            }
         });
     }
 
@@ -89,14 +101,15 @@
                 ctx.fillStyle = "pink";
                 ctx.fillRect(f.x - 2.5 , f.y - 2.5 , 5, 5);
 
-                ctx.beginPath();
-                ctx.strokeStyle = "red";
-                ctx.arc(f.x, f.y, 40, 0, 2 * Math.PI);
-                ctx.stroke(); 
-
+                if (debugMode){
+                    ctx.beginPath();
+                    ctx.strokeStyle = "red";
+                    ctx.arc(f.x, f.y, 40, 0, 2 * Math.PI);
+                    ctx.stroke(); 
+                }
                 f.mobs.forEach(g => {
 
-                    if (isInRange(player,g,20)) ctx.fillStyle = "orange";
+                    if (isInRange(player,g,20) && debugMode) ctx.fillStyle = "orange";
                     else ctx.fillStyle = "red";
                     ctx.fillRect(g.pos.x, g.pos.y, 5, 5);
 
@@ -107,7 +120,10 @@
         });
     }
 
+
+    
     function mapAnim(){
+
 
         if (player.pos.walking == true) player.run();
 
