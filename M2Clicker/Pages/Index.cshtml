@@ -4,18 +4,21 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center" oncontextmenu="return false;">
+<div style="display:flex; flex-direction: row; justify-content: center; align-items: center" oncontextmenu="return false;">
 
     <div>
       <input type="checkbox" id="debugMode" name="debugMode" onchange="changeDebugMode()">
       <label for="debugMode">Tryb Debugowania</label>
     </div>
 
-    <ul id="dynamic-list"></ul>
+
+
 
     <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
         Your browser does not support the HTML canvas tag.
     </canvas>
+
+    <ul id="dynamic-list"></ul>
 </div>
 
 
@@ -24,9 +27,11 @@
 <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
     var debugMode = document.getElementById("debugMode").checked;
+    
     function changeDebugMode(){
         debugMode = document.getElementById("debugMode").checked;
     }
+
     const player = new Player("Gracz", new Position(200,250), 0);
     const spawnPoints = [new SpawnPoint(100,100, 1),
         new SpawnPoint(300,100, 2),
@@ -34,9 +39,17 @@
         new SpawnPoint(300,300, 4)
     ];
     spawnPoints.forEach(e => {
-        for (var i = 0; i<3; i++) e.addMobGroup();
+        for (var i = 0; i<3; i++) e.addMobGroup(e.id, i);
     });
     
+    {
+        var ul = document.getElementById("dynamic-list");
+        var li = document.createElement("li");
+        li.setAttribute('id', "MobTest" + 9999);
+        li.setAttribute('data-mobid', 9999);
+        li.appendChild(document.createTextNode("Lista mobów blisko ciebie:"));
+        ul.appendChild(li);
+    }
     //BIG INIT TODO
     function onInit(){
         //Pobierz lokacje gracza i dodaj do obiektu
@@ -109,22 +122,33 @@
                     ctx.arc(f.x, f.y, 40, 0, 2 * Math.PI);
                     ctx.stroke(); 
                 }
-                f.mobs.forEach(g => {
 
-                    if (isInRange(player,g,20) && debugMode) {
-                        var ul = document.getElementById("dynamic-list");
-                        var found = false;
-                        ul.childNodes.forEach(h=> {
+                var ul = document.getElementById("dynamic-list");
+
+                f.mobs.forEach(g => {
+                    var isNearPlayer = isInRange(player,g,20);
+                    var isOnList = false;
+                    ul.childNodes.forEach(h => {
                             if ((typeof h.dataset.mobid !== 'undefined') && h.dataset.mobid == g.id) {
-                                found = true;
+                                isOnList = true;
                             }
 
-                        });
-                        if (!found) addItem(g);
+                    });
+
+                    if(isNearPlayer){
                         ctx.fillStyle = "orange";
+                        if (!isOnList) 
+                            addItem(g);
+                        
                     }
-                    else ctx.fillStyle = "red";
+                    else {
+                        ctx.fillStyle = "red";
+                        if (isOnList) 
+                            removeItem(g);
+                    }
+
                     ctx.fillRect(g.pos.x, g.pos.y, 5, 5);
+
 
                 });
 
@@ -162,12 +186,17 @@
 function addItem(mob){
     var ul = document.getElementById("dynamic-list");
     var li = document.createElement("li");
-    li.setAttribute('id', "MobTest");
+    li.setAttribute('id', "MobTest" + mob.id);
     li.setAttribute('data-mobid', mob.id);
-    li.appendChild(document.createTextNode("Siema" + mob.name));
+    li.appendChild(document.createTextNode("Siema" + mob.name + "z id " + mob.id));
     ul.appendChild(li);
 }
 
+function removeItem(mob){
+    var ul = document.getElementById("dynamic-list");
+    var item = document.getElementById("MobTest" + mob.id);
+    ul.removeChild(item);
+}
 
 
 </script>

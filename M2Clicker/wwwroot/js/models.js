@@ -1,12 +1,15 @@
 class MobGroup {
-    constructor(spawnPointX, spawnPointY, testos){
+    constructor(spawnPointX, spawnPointY, spawnPointId, groupId) {
+        this.groupId = groupId;
 
         var tempPos = getRandomCordsInRadius(spawnPointX, spawnPointY, 80);
         this.x = tempPos.x; this.y = tempPos.y;
+
         //TEMP MOB SPAWN, wszystko wpisane na stałe
-        for (var i = 0; i< 3; i++)
-        this.mobs.push(new Mob("Dziki pies", getRandomCordsInRadius(this.x, this.y, this.mobPosRadius), i + testos))
+        for (var i = 0; i < 3; i++)
+            this.mobs.push(new Mob("Dziki pies", getRandomCordsInRadius(this.x, this.y, this.mobPosRadius), i + spawnPointId * 100 + this.groupId*10))
     }
+
     groupId;
     x;
     y;
@@ -28,8 +31,8 @@ class SpawnPoint {
     id;
     mobGroups = [];
 
-    addMobGroup(){
-        this.mobGroups.push(new MobGroup(this.x, this.y, this.id * 10));
+    addMobGroup(spawnPointId, groupId){
+        this.mobGroups.push(new MobGroup(this.x, this.y, spawnPointId, groupId));
     }
 
 }
