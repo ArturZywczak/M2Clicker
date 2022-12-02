@@ -24,7 +24,12 @@ function getMousePos(canvas, evt) {
     return new Position(x,y);
 }
 
-function isInRange(unit1, unit2, range){
-    if (((unit1.pos.x - unit2.pos.x) * (unit1.pos.x - unit2.pos.x) + (unit1.pos.y - unit2.pos.y) * (unit1.pos.y - unit2.pos.y)) < Math.pow(range,2) ) return true;
+function isInRange(obj1, obj2, range) {
+
+    //Sprawdzenie czy 'a'' i 'b'' to Unit czy Pos i konwertowanie do wspólnego formatu
+    var a = typeof obj1.x == "number" ? obj1 : obj1.pos;
+    var b = typeof obj2.x == "number" ? obj2 : obj2.pos;
+
+    if (((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)) < Math.pow(range,2) ) return true;
     else return false;
 }

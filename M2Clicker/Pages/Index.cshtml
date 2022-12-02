@@ -17,7 +17,7 @@
             </canvas>
         </div>
         <div class="col bg-light overflow-auto h-100">
-            <ul id="test-list" class="no-bullets">
+            <ul id="mob-list" class="no-bullets">
             </ul>
         </div>
     </div>
@@ -42,7 +42,8 @@
     spawnPoints.forEach(e => {
         for (var i = 0; i<3; i++) e.addMobGroup(e.id, i);
     });
-    
+    const leftClickPos = new Position(-1,-1);
+
     //BIG INIT TODO
     function onInit(){
         //Pobierz lokacje gracza i dodaj do obiektu
@@ -55,11 +56,22 @@
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
 
-    canvas.addEventListener("contextmenu",  onClick);
+    canvas.addEventListener("contextmenu",  onRightClick);
+    canvas.addEventListener("click", onLeftClick);
 
-    function onClick(e){
+    function onRightClick(e) {
 
         player.goTo(getMousePos(canvas,e));
+        leftClickPos.x = -100;
+        leftClickPos.y = -100;
+
+    }
+
+    function onLeftClick(e) {
+
+        var temp = getMousePos(canvas,e);
+        leftClickPos.x = temp.x;
+        leftClickPos.y = temp.y;
 
     }
 
@@ -69,6 +81,7 @@
         drawPlayer();
         drawSpawnPoints();
         drawMobs();
+        drawLeftClick();
 
         setTimeout(mapAnim, 20);
     }
@@ -81,12 +94,14 @@
 
     function drawSpawnPoints(){
 
+        
         spawnPoints.forEach(e => {
-
-            ctx.fillStyle = "yellow";
-            ctx.fillRect(e.x - 2.5 , e.y - 2.5 , 5, 5);
-
             if (debugMode) {
+
+                ctx.fillStyle = "yellow";
+                ctx.fillRect(e.x - 2.5 , e.y - 2.5 , 5, 5);
+
+
                 ctx.beginPath();
                 ctx.strokeStyle = "white";
                 ctx.arc(e.x, e.y, 45, 0, 2 * Math.PI);
@@ -106,20 +121,22 @@
             
             e.mobGroups.forEach(f => {
 
-                ctx.fillStyle = "pink";
-                ctx.fillRect(f.x - 2.5 , f.y - 2.5 , 5, 5);
+                if(debugMode){
+                    ctx.fillStyle = "pink";
+                    ctx.fillRect(f.x - 2.5 , f.y - 2.5 , 5, 5);
 
-                if (debugMode){
                     ctx.beginPath();
                     ctx.strokeStyle = "red";
                     ctx.arc(f.x, f.y, 40, 0, 2 * Math.PI);
                     ctx.stroke(); 
                 }
 
-                var ul = document.getElementById("test-list");
+                var ul = document.getElementById("mob-list");
 
                 f.mobs.forEach(g => {
                     var isNearPlayer = isInRange(player,g,20);
+                    var isNearLeftClick = isInRange(leftClickPos,g,20);
+
                     var isOnList = false;
                     ul.childNodes.forEach(h => {
                             if ((typeof h.id !== 'undefined') && h.id == "Mob"+g.id) {
@@ -128,7 +145,7 @@
 
                     });
 
-                    if(isNearPlayer){
+                    if(isNearPlayer || isNearLeftClick){
                         ctx.fillStyle = "orange";
                         if (!isOnList) {
                             newAddItem(g);
@@ -151,7 +168,13 @@
         });
     }
 
+    function drawLeftClick(){
 
+        if (debugMode){
+            ctx.fillStyle = "lightgreen";
+            ctx.fillRect(leftClickPos.x - 2.5 ,leftClickPos.y - 2.5 ,5,5);
+        }
+    }
     
     function mapAnim(){
 
@@ -179,7 +202,7 @@
     
 
     function newAddItem(mob){
-        var ul = document.getElementById("test-list");
+        var ul = document.getElementById("mob-list");
         var li = document.createElement("li");
         li.setAttribute('id', "Mob" + mob.id);
         li.setAttribute('class', 'p-1');
@@ -213,7 +236,7 @@
     }
 
     function newRemoveItem(mob){
-    var ul = document.getElementById("test-list");
+    var ul = document.getElementById("mob-list");
     var item = document.getElementById("Mob" + mob.id);
     ul.removeChild(item);
     }
