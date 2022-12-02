@@ -3,24 +3,25 @@
 @{
     ViewData["Title"] = "Home page";
 }
-
-<div style="display:flex; flex-direction: row; justify-content: center; align-items: center" oncontextmenu="return false;">
-
-    <div>
-      <input type="checkbox" id="debugMode" name="debugMode" onchange="changeDebugMode()">
-      <label for="debugMode">Tryb Debugowania</label>
-    </div>
-
-
-
-
-    <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
-        Your browser does not support the HTML canvas tag.
-    </canvas>
-
-    <ul id="dynamic-list"></ul>
+<div>
+    <input type="checkbox" id="debugMode" name="debugMode" onchange="changeDebugMode()">
+    <label for="debugMode">Tryb Debugowania</label>
 </div>
 
+
+<div class="container bg-danger" style="height:420px" oncontextmenu="return false;">
+    <div class="row h-100" >
+        <div class="col-md-auto bg-info">
+            <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
+                Your browser does not support the HTML canvas tag.
+            </canvas>
+        </div>
+        <div class="col bg-light overflow-auto h-100">
+            <ul id="test-list" class="no-bullets">
+            </ul>
+        </div>
+    </div>
+</div>
 
 <script src="~/js/helpers.js" asp-append-version="true"></script>
 <script src="~/js/models.js" asp-append-version="true"></script>
@@ -42,14 +43,6 @@
         for (var i = 0; i<3; i++) e.addMobGroup(e.id, i);
     });
     
-    {
-        var ul = document.getElementById("dynamic-list");
-        var li = document.createElement("li");
-        li.setAttribute('id', "MobTest" + 9999);
-        li.setAttribute('data-mobid', 9999);
-        li.appendChild(document.createTextNode("Lista mobów blisko ciebie:"));
-        ul.appendChild(li);
-    }
     //BIG INIT TODO
     function onInit(){
         //Pobierz lokacje gracza i dodaj do obiektu
@@ -62,7 +55,7 @@
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
 
-    canvas.addEventListener("click", onClick);
+    canvas.addEventListener("contextmenu",  onClick);
 
     function onClick(e){
 
@@ -123,13 +116,13 @@
                     ctx.stroke(); 
                 }
 
-                var ul = document.getElementById("dynamic-list");
+                var ul = document.getElementById("test-list");
 
                 f.mobs.forEach(g => {
                     var isNearPlayer = isInRange(player,g,20);
                     var isOnList = false;
                     ul.childNodes.forEach(h => {
-                            if ((typeof h.dataset.mobid !== 'undefined') && h.dataset.mobid == g.id) {
+                            if ((typeof h.id !== 'undefined') && h.id == "Mob"+g.id) {
                                 isOnList = true;
                             }
 
@@ -137,14 +130,15 @@
 
                     if(isNearPlayer){
                         ctx.fillStyle = "orange";
-                        if (!isOnList) 
-                            addItem(g);
-                        
+                        if (!isOnList) {
+                            newAddItem(g);
+                        }
                     }
                     else {
                         ctx.fillStyle = "red";
-                        if (isOnList) 
-                            removeItem(g);
+                        if (isOnList) {
+                            newRemoveItem(g);
+                        }
                     }
 
                     ctx.fillRect(g.pos.x, g.pos.y, 5, 5);
@@ -182,21 +176,46 @@
     }
 
     drawAll();
+    
 
-function addItem(mob){
-    var ul = document.getElementById("dynamic-list");
-    var li = document.createElement("li");
-    li.setAttribute('id', "MobTest" + mob.id);
-    li.setAttribute('data-mobid', mob.id);
-    li.appendChild(document.createTextNode("Siema" + mob.name + "z id " + mob.id));
-    ul.appendChild(li);
-}
+    function newAddItem(mob){
+        var ul = document.getElementById("test-list");
+        var li = document.createElement("li");
+        li.setAttribute('id', "Mob" + mob.id);
+        li.setAttribute('class', 'p-1');
 
-function removeItem(mob){
-    var ul = document.getElementById("dynamic-list");
-    var item = document.getElementById("MobTest" + mob.id);
+        //div container
+        var bigDiv = document.createElement('div');
+
+        //div z nazwą potwora
+        var nameDiv = document.createElement('div');
+        nameDiv.setAttribute('class','col-md-12 text-center bg-info');
+        nameDiv.appendChild(document.createTextNode(mob.name + "z id " + mob.id));
+
+        //Div z przyciskami
+        var buttonDiv = document.createElement('div');
+        buttonDiv.setAttribute('class', 'col-md-12 text-center bg-dark p-2');
+
+        var button = document.createElement('button');
+        button.setAttribute('class', 'btn btn-secondary');
+        button.setAttribute('type', 'button');
+        button.appendChild(document.createTextNode('Atakuj'));
+
+        //dodawanie
+        buttonDiv.appendChild(button);
+
+        bigDiv.appendChild(nameDiv);
+        bigDiv.appendChild(buttonDiv);
+
+        li.appendChild(bigDiv);
+
+        ul.appendChild(li);
+    }
+
+    function newRemoveItem(mob){
+    var ul = document.getElementById("test-list");
+    var item = document.getElementById("Mob" + mob.id);
     ul.removeChild(item);
-}
-
+    }
 
 </script>
