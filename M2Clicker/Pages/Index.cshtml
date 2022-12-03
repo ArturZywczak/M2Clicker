@@ -43,6 +43,7 @@
         for (var i = 0; i<3; i++) e.addMobGroup(e.id, i);
     });
     const leftClickPos = new Position(-1,-1);
+    var clickedItem;
 
     //BIG INIT TODO
     function onInit(){
@@ -69,6 +70,16 @@
 
     function onLeftClick(e) {
 
+        var ul = document.getElementById("mob-list");
+        var isOnList = false;
+        ul.childNodes.forEach(h => {
+                if ((typeof h.id !== 'undefined') && h.id == "Mob"+clickedItem.id) {
+                    isOnList = true;
+                }
+
+        });
+
+        if (typeof clickedItem != "undefined" && isOnList) newRemoveItem(clickedItem);
         var temp = getMousePos(canvas,e);
         leftClickPos.x = temp.x;
         leftClickPos.y = temp.y;
@@ -135,30 +146,36 @@
 
                 f.mobs.forEach(g => {
                     var isNearPlayer = isInRange(player,g,20);
-                    var isNearLeftClick = isInRange(leftClickPos,g,20);
+                    var isNearLeftClick = isInRange(leftClickPos,g,6);
+                    ctx.fillStyle = "red";
 
                     var isOnList = false;
                     ul.childNodes.forEach(h => {
                             if ((typeof h.id !== 'undefined') && h.id == "Mob"+g.id) {
                                 isOnList = true;
+                                ctx.fillStyle = "orange";
                             }
 
                     });
 
-                    if(isNearPlayer || isNearLeftClick){
-                        ctx.fillStyle = "orange";
+                    if(isNearPlayer){
                         if (!isOnList) {
                             newAddItem(g);
                         }
                     }
+                    else if(isNearLeftClick){
+                        newAddItem(g);
+                        clickedItem = g;
+
+                    }
                     else {
-                        ctx.fillStyle = "red";
-                        if (isOnList) {
+
+                        if (isOnList && g != clickedItem) {
                             newRemoveItem(g);
                         }
                     }
 
-                    ctx.fillRect(g.pos.x, g.pos.y, 5, 5);
+                    ctx.fillRect(g.pos.x -2.5 , g.pos.y -2.5 , 5, 5);
 
 
                 });
@@ -166,6 +183,8 @@
             });
 
         });
+
+        leftClickPos.x = -100; leftClickPos.y = -100;
     }
 
     function drawLeftClick(){
