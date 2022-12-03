@@ -22,3 +22,54 @@ ul.no-bullets {
     margin: 0;
     padding: 0;
 }
+
+.interface-bar:hover .interface-bar-tooltip {
+    display: block;
+}
+
+.interface-bar-tooltip {
+    display: none;
+    margin-left: 5px;
+    margin-top: -30px;
+    padding: 1px;
+    position: absolute;
+    border: solid;
+    border-color: black;
+    text-align: center;
+    width: fit-content;
+    height:fit-content;
+
+}
+
+.interface-bar{
+    border: solid;
+    border-width: 1px;
+    border-color:gray;
+}
+
+.circleBase {
+    border-radius: 50%;
+    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
+}
+
+.type1 {
+    height: 35px;
+    width: 35px;
+    padding: 0px;
+    margin-left: -10px;
+    margin-top: 4px;
+    border: 2px solid gray;
+}
+
+.skillBox {
+    border-radius: 10%;
+    border: 2px solid gray;
+    background-color: #121212;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    color: white;
+    padding: 0;
+    padding-top: -2px;
+    width:40px;
+    height: 40px;
+}

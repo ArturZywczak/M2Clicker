@@ -9,52 +9,58 @@
 </div>
 
 
-<div class="container bg-danger" style="height:455px; min-width:800px" oncontextmenu="return false;">
+<div class="container bg-black" style="height:455px; min-width:1000px" oncontextmenu="return false;">
     <div class="row" style="height:410px" >
         <div class="col-auto bg-info" style="min-width:400px">
             <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
                 Your browser does not support the HTML canvas tag.
             </canvas>
         </div>
-        <div class="col bg-light overflow-auto h-100" >
+        <div class="col bg-light overflow-auto h-100">
             <ul id="mob-list" class="no-bullets">
             </ul>
         </div>
     </div>
     <div class="row" style="height:45px">
-        <div class="col-2">
-            <div class="row bg-danger" style="height:15px"> hp</div>
-            <div class="row bg-primary" style="height:15px">mana</div>
-            <div class="row bg-warning" style="height:15px">stamina</div>
-
+        <div class="col-2 m-0">
+            <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#d45757;"><b style="font-size:smaller">75/100</b></div><span style="width:75%; background-color:red"></span></div>
+            <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#5881e8;"><b style="font-size:smaller">89/100</b></div><span style="width:89%; background-color:blue"></span></div>
+            <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#e3e858;"><b style="font-size:smaller">100/100</b></div><span style="width:100%; background-color:yellow"></span></div>
         </div>
-        <div class="col-3">
+        <div class="col-2 m-0">
             <div class="row h-100">
-                <div class="col-9 bg-info">exp</div>
-                <div class="col-3 bg-black">m</div>
+                <div class="col-12 m-0">
+                    <div class="row">
+                        <div class="col-3"><div class="circleBase type1" style="background: linear-gradient( black 0%, yellow 0%);"></div></div>
+                        <div class="col-3"><div class="circleBase type1" style="background: linear-gradient( black 69%, yellow 0%);"></div></div>
+                        <div class="col-3"><div class="circleBase type1" style="background: linear-gradient( black 43%, yellow 0%);"></div></div>
+                        <div class="col-3"><div class="circleBase type1"style="background: linear-gradient( black 11%, yellow 0%);"></div></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-5">
-            <div class="row h-100">
-                <div class="col-1">1</div>
-                <div class="col-1">2</div>
-                <div class="col-1">3</div>
-                <div class="col-1">4</div>
-                <div class="col-1">x</div>
-                <div class="col-1">f1</div>
-                <div class="col-1">f2</div>
-                <div class="col-1">f3</div>
-                <div class="col-1">f4</div>
-                <div class="col-1">d</div>
-                <div class="col-2">pm</div>
+        <div class="col-md-6 m-0">
+            <div class="row h-100 ">
+                <div class="col-1 skillBox">lm</div>
+                <div class="col-1 skillBox">1</div>
+                <div class="col-1 skillBox">2</div>
+                <div class="col-1 skillBox">3</div>
+                <div class="col-1 skillBox">4</div>
+                <div class="col-1 skillBox">x</div>
+                <div class="col-1 skillBox">f1</div>
+                <div class="col-1 skillBox">f2</div>
+                <div class="col-1 skillBox">f3</div>
+                <div class="col-1 skillBox">f4</div>
+                <div class="col-1 skillBox">d</div>
+                <div class="col-1 skillBox">pm</div>
             </div>
         </div>
-        <div class="col-2">
+        <div class="col-lg-2 m-0">
             <div class="row h-100">
-                <div class="col-3">o1</div>
-                <div class="col-3">o2</div>
-                <div class="col-3">o3</div>
-                <div class="col-3">o4</div>
+                <div class="col-3 skillBox">o1</div>
+                <div class="col-3 skillBox">o2</div>
+                <div class="col-3 skillBox">o3</div>
+                <div class="col-3 skillBox">o4</div>
             </div>
         </div>
     </div>
@@ -64,6 +70,17 @@
 <script src="~/js/models.js" asp-append-version="true"></script>
 <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
+
+    var tooltip = document.querySelectorAll('.interface-bar-tooltip');
+document.addEventListener('mousemove', fn, false);
+function fn(e) {
+    for (var i=tooltip.length; i--;) {
+        tooltip[i].style.left = e.pageX + 'px';
+        tooltip[i].style.top = e.pageY + 'px';
+    }
+}
+
+
     var debugMode = document.getElementById("debugMode").checked;
     
     function changeDebugMode(){
