@@ -1,13 +1,13 @@
 class MobGroup {
-    constructor(spawnPointX, spawnPointY, spawnPointId, groupId) {
-        this.groupId = groupId;
+    constructor(spawnPoint) {
+        this.groupId = spawnPoint.mobGroups.length;
 
-        var tempPos = getRandomCordsInRadius(spawnPointX, spawnPointY, 80);
+        var tempPos = getRandomCordsInRadius(spawnPoint.x, spawnPoint.y, spawnPoint.mobGroupSpawnRange);
         this.x = tempPos.x; this.y = tempPos.y;
 
         //TEMP MOB SPAWN, wszystko wpisane na stałe
         for (var i = 0; i < 3; i++)
-            this.mobs.push(new Mob("Dziki pies", getRandomCordsInRadius(this.x, this.y, this.mobPosRadius), i + spawnPointId * 100 + this.groupId*10))
+            this.mobs.push(new Mob("Dziki pies", getRandomCordsInRadius(this.x, this.y, this.mobPosRadius), i + spawnPoint.id * 100 + this.groupId * 10))
     }
 
     groupId;
@@ -30,9 +30,10 @@ class SpawnPoint {
     y;
     id;
     mobGroups = [];
+    mobGroupSpawnRange = 100;
 
-    addMobGroup(spawnPointId, groupId){
-        this.mobGroups.push(new MobGroup(this.x, this.y, spawnPointId, groupId));
+    addMobGroup(){
+        this.mobGroups.push(new MobGroup(this));
     }
 
 }
@@ -92,10 +93,16 @@ class Unit {
 class Player extends Unit {
     constructor(newName, newPos, newId){
         super(newName, newPos, newId);
+        this.attackRange = 80;
     }
 
     speed = 100;
-    
+
+    VIT;
+    INT;
+    STR;
+    DEX;
+        
 }
 
 class Mob extends Unit {

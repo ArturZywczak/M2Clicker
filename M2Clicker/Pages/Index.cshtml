@@ -30,7 +30,8 @@
         <div class="col-2 m-0">
             <div class="row h-100">
                 <div class="col-12 m-0">
-                    <div class="row">
+                    <div class="row interface-bar" style="border:none">
+                        <div class="interface-bar-tooltip" style="background:gold;"><b style="font-size:smaller">Doświadczenie: 21.37%</b></div>
                         <div class="col-3"><div class="circleBase type1" style="background: linear-gradient( black 0%, yellow 0%);"></div></div>
                         <div class="col-3"><div class="circleBase type1" style="background: linear-gradient( black 69%, yellow 0%);"></div></div>
                         <div class="col-3"><div class="circleBase type1" style="background: linear-gradient( black 43%, yellow 0%);"></div></div>
@@ -71,22 +72,13 @@
 <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
 
-    var tooltip = document.querySelectorAll('.interface-bar-tooltip');
-document.addEventListener('mousemove', fn, false);
-function fn(e) {
-    for (var i=tooltip.length; i--;) {
-        tooltip[i].style.left = e.pageX + 'px';
-        tooltip[i].style.top = e.pageY + 'px';
-    }
-}
-
-
+    //DEBUG MODE
     var debugMode = document.getElementById("debugMode").checked;
-    
     function changeDebugMode(){
         debugMode = document.getElementById("debugMode").checked;
     }
 
+    //TEMP INIT, CREATE PLAYER, SPAWN POINTS, SELECTED MOB(LMB)
     const player = new Player("Gracz", new Position(200,250), 0);
     const spawnPoints = [new SpawnPoint(100,100, 1),
         new SpawnPoint(300,100, 2),
@@ -94,23 +86,14 @@ function fn(e) {
         new SpawnPoint(300,300, 4)
     ];
     spawnPoints.forEach(e => {
-        for (var i = 0; i<3; i++) e.addMobGroup(e.id, i);
+        for (var i = 0; i<3; i++) e.addMobGroup();
     });
     const leftClickPos = new Position(-1,-1);
     var clickedItem;
 
-    //BIG INIT TODO
-    function onInit(){
-        //Pobierz lokacje gracza i dodaj do obiektu
-
-        //Pobierz spawnpointy i stwórz z nich listę obiektów
-
-        //Zespawnuj mobki na niektórych spawnpointach
-    }
-
+    //CANVAS 
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d");
-
     canvas.addEventListener("contextmenu",  onRightClick);
     canvas.addEventListener("click", onLeftClick);
 
@@ -129,11 +112,11 @@ function fn(e) {
         ul.childNodes.forEach(h => {
                 if ((typeof h.id !== 'undefined') && h.id == "Mob"+clickedItem.id) {
                     isOnList = true;
+                    return false;
                 }
-
         });
 
-        if (typeof clickedItem != "undefined" && isOnList) newRemoveItem(clickedItem);
+        if (typeof clickedItem != "undefined" && isOnList) removeFromMobList(clickedItem);
         var temp = getMousePos(canvas,e);
         leftClickPos.x = temp.x;
         leftClickPos.y = temp.y;
@@ -144,7 +127,6 @@ function fn(e) {
         ctx.fillStyle= "black";
         ctx.fillRect(0,0, canvas.clientWidth, canvas.clientHeight)
         drawPlayer();
-        drawSpawnPoints();
         drawMobs();
         drawLeftClick();
 
@@ -155,87 +137,78 @@ function fn(e) {
 
         ctx.fillStyle = "blue";
         ctx.fillRect(player.pos.x - 2.5 ,player.pos.y - 2.5 ,5,5);
+
+        if(debugMode){
+            ctx.strokeStyle = "blue";
+            ctx.beginPath();
+            ctx.arc(player.pos.x, player.pos.y, player.attackRange, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
     }
 
-    function drawSpawnPoints(){
-
-        
-        spawnPoints.forEach(e => {
-            if (debugMode) {
-
-                ctx.fillStyle = "yellow";
-                ctx.fillRect(e.x - 2.5 , e.y - 2.5 , 5, 5);
-
-
-                ctx.beginPath();
-                ctx.strokeStyle = "white";
-                ctx.arc(e.x, e.y, 45, 0, 2 * Math.PI);
-                ctx.stroke(); 
-
-                ctx.beginPath();
-                ctx.strokeStyle = "pink";
-                ctx.arc(e.x, e.y, 80, 0, 2 * Math.PI);
-                ctx.stroke(); 
-            }
-        });
-    }
 
     function drawMobs(){
 
         spawnPoints.forEach(e => {
             
+            if(debugMode){
+                ctx.fillStyle = "yellow";
+                ctx.fillRect(e.x - 2.5 , e.y - 2.5 , 5, 5);
+            }
+
             e.mobGroups.forEach(f => {
 
                 if(debugMode){
                     ctx.fillStyle = "pink";
+                    ctx.strokeStyle = "pink";
                     ctx.fillRect(f.x - 2.5 , f.y - 2.5 , 5, 5);
+                    ctx.beginPath();
+                    ctx.arc(e.x, e.y, e.mobGroupSpawnRange, 0, 2 * Math.PI);
+                    ctx.stroke(); 
 
                     ctx.beginPath();
                     ctx.strokeStyle = "red";
-                    ctx.arc(f.x, f.y, 40, 0, 2 * Math.PI);
+                    ctx.arc(f.x, f.y, f.mobPosRadius, 0, 2 * Math.PI);
                     ctx.stroke(); 
                 }
 
                 var ul = document.getElementById("mob-list");
 
                 f.mobs.forEach(g => {
-                    var isNearPlayer = isInRange(player,g,20);
-                    var isNearLeftClick = isInRange(leftClickPos,g,6);
+                    var isNearPlayer = isInRange(player,g,player.attackRange);
+                    var isNearLeftClick;
+                    isNearLeftClick = leftClickPos.x == -100? false : isInRange(leftClickPos,g,6);
                     ctx.fillStyle = "red";
 
                     var isOnList = false;
                     ul.childNodes.forEach(h => {
-                            if ((typeof h.id !== 'undefined') && h.id == "Mob"+g.id) {
-                                isOnList = true;
-                                ctx.fillStyle = "orange";
-                            }
-
+                        if ((typeof h.id !== 'undefined') && h.id == "Mob"+g.id) {
+                            isOnList = true;
+                            ctx.fillStyle = "orange";
+                        }
                     });
 
                     if(isNearPlayer){
                         if (!isOnList) {
-                            newAddItem(g);
+                            addToMobList(g);
                         }
                     }
                     else if(isNearLeftClick){
-                        newAddItem(g);
+                        addToMobList(g);
                         clickedItem = g;
 
                     }
                     else {
 
                         if (isOnList && g != clickedItem) {
-                            newRemoveItem(g);
+                            removeFromMobList(g);
                         }
                     }
 
                     ctx.fillRect(g.pos.x -2.5 , g.pos.y -2.5 , 5, 5);
 
-
                 });
-
             });
-
         });
 
         leftClickPos.x = -100; leftClickPos.y = -100;
@@ -274,44 +247,5 @@ function fn(e) {
     drawAll();
     
 
-    function newAddItem(mob){
-        var ul = document.getElementById("mob-list");
-        var li = document.createElement("li");
-        li.setAttribute('id', "Mob" + mob.id);
-        li.setAttribute('class', 'p-1');
-
-        //div container
-        var bigDiv = document.createElement('div');
-
-        //div z nazwą potwora
-        var nameDiv = document.createElement('div');
-        nameDiv.setAttribute('class','col-md-12 text-center bg-info');
-        nameDiv.appendChild(document.createTextNode(mob.name + " z id " + mob.id));
-
-        //Div z przyciskami
-        var buttonDiv = document.createElement('div');
-        buttonDiv.setAttribute('class', 'col-md-12 text-center bg-dark p-2');
-
-        var button = document.createElement('button');
-        button.setAttribute('class', 'btn btn-secondary');
-        button.setAttribute('type', 'button');
-        button.appendChild(document.createTextNode('Atakuj'));
-
-        //dodawanie
-        buttonDiv.appendChild(button);
-
-        bigDiv.appendChild(nameDiv);
-        bigDiv.appendChild(buttonDiv);
-
-        li.appendChild(bigDiv);
-
-        ul.appendChild(li);
-    }
-
-    function newRemoveItem(mob){
-    var ul = document.getElementById("mob-list");
-    var item = document.getElementById("Mob" + mob.id);
-    ul.removeChild(item);
-    }
 
 </script>
