@@ -50,6 +50,7 @@ class Unit {
 
         this.pos = newPos;
 
+        this.attackCD = this.attackSpeed / 2;
 
     }
 
@@ -63,7 +64,24 @@ class Unit {
     speed;
 
     pos;
-    
+
+    //NEW HERE
+    id;
+    name;
+    level;
+    st;
+    iq;
+    ht;
+    dx;
+    exp;
+    hp;
+    maxHp = 1000;
+
+    attackCD;
+    autoAttackTarget = '';
+
+
+    //METHODS
     goTo(newPos){
 
         this.pos.toX = newPos.x; this.pos.toY = newPos.y;
@@ -88,29 +106,77 @@ class Unit {
 
     }
 
+
+    //COMBAT
+    startAttack(target) {
+        this.pos.inCombat = true;
+        this.autoAttackTarget = target;
+        this.attack();
+        
+    }
+
+    attack() {
+
+        if (!isInRange(this, this.autoAttackTarget, this.attackRange)) this.goTo(this.autoAttackTarget.pos);
+        else {
+            this.pos.walking = false;
+            //jak jak nie ma cd to uderz cel
+            if (this.attackCD == this.attackSpeed / 2) this.hit(this.autoAttackTarget);
+            //jak jest to nic nie rób
+            else;
+            //zmniejsz cd
+        }
+
+        this.attackCD -= 1;
+        if (this.attackCD == 0) this.attackCD = this.attackSpeed / 2;
+    }
+
+    hit(target) {
+        target.hp -= this.attackDmage;
+    }
 }
 
 class Player extends Unit {
     constructor(newName, newPos, newId){
         super(newName, newPos, newId);
-        this.attackRange = 80;
+        this.attackRange = 5;
+
+        this.hp = 1000;
+        this.maxHp = 1000;
     }
 
     speed = 100;
 
-    VIT;
-    INT;
-    STR;
-    DEX;
-        
+    //NEW HERE
+    mp;
+    maxMp;
+    stamina;
+    maxStamina;
+    gold;
+    levelNext;
+
 }
 
 class Mob extends Unit {
     constructor(newName,newPos, newId){
         super(newName, newPos, newId);
+
+        this.hp = 100;
+        this.maxHp = 100;
     }
 
-    speed= 50;
+    speed = 50;
+
+    //NEW HERE
+    dmageMin;
+    dmageMax;
+    goldMin;
+    goldMax;
+    def;
+    attackSpeed;
+    moveSpeed;
+    attackRange;
+    dropItem;
 }
 
 class Position {
@@ -123,7 +189,7 @@ class Position {
     y;
 
     walking = false;
-    attacking = false;
+    inCombat = false;
 
     toX;
     toY;

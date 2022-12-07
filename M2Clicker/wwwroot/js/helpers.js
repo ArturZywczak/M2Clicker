@@ -62,13 +62,22 @@ function addToMobList(mob) {
     var buttonDiv = document.createElement('div');
     buttonDiv.setAttribute('class', 'col-md-12 text-center bg-dark p-2');
 
+    //Przycisk
     var button = document.createElement('button');
     button.setAttribute('class', 'btn btn-secondary');
     button.setAttribute('type', 'button');
+    button.setAttribute('onClick', 'attackMob(this)');
+    button.setAttribute('data-mobID', mob.id);
     button.appendChild(document.createTextNode('Atakuj'));
+
+    //DIV wypisane HP
+    var hpDiv = document.createElement('div');
+    hpDiv.appendChild(document.createTextNode(mob.hp + "/" + mob.maxHp));
+    hpDiv.setAttribute('class', 'bg-info');
 
     //dodawanie
     buttonDiv.appendChild(button);
+    buttonDiv.appendChild(hpDiv);
 
     bigDiv.appendChild(nameDiv);
     bigDiv.appendChild(buttonDiv);

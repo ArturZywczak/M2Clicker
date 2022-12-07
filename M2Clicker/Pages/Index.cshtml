@@ -17,13 +17,12 @@
             </canvas>
         </div>
         <div class="col bg-light overflow-auto h-100">
-            <ul id="mob-list" class="no-bullets">
-            </ul>
+            <ul id="mob-list" class="no-bullets"></ul>
         </div>
     </div>
     <div class="row" style="height:45px">
         <div class="col-2 m-0">
-            <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#d45757;"><b style="font-size:smaller">75/100</b></div><span style="width:75%; background-color:red"></span></div>
+            <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#d45757;"><b id ="UIHpValue"style="font-size:smaller">75/100</b></div><span id="UIHpBar" style="width:75%; background-color:red"></span></div>
             <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#5881e8;"><b style="font-size:smaller">89/100</b></div><span style="width:89%; background-color:blue"></span></div>
             <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#e3e858;"><b style="font-size:smaller">100/100</b></div><span style="width:100%; background-color:yellow"></span></div>
         </div>
@@ -99,6 +98,7 @@
 
     function onRightClick(e) {
 
+        player.pos.inCombat = false;
         player.goTo(getMousePos(canvas,e));
         leftClickPos.x = -100;
         leftClickPos.y = -100;
@@ -106,17 +106,18 @@
     }
 
     function onLeftClick(e) {
+        if (typeof clickedItem != 'undefined') {
+            var ul = document.getElementById("mob-list");
+            var isOnList = false;
+            ul.childNodes.forEach(h => {
+                    if ((typeof h.id != 'undefined') && h.id == "Mob"+clickedItem.id) {
+                        isOnList = true;
+                        return false;
+                    }
+            });
 
-        var ul = document.getElementById("mob-list");
-        var isOnList = false;
-        ul.childNodes.forEach(h => {
-                if ((typeof h.id !== 'undefined') && h.id == "Mob"+clickedItem.id) {
-                    isOnList = true;
-                    return false;
-                }
-        });
-
-        if (typeof clickedItem != "undefined" && isOnList) removeFromMobList(clickedItem);
+            if (isOnList) removeFromMobList(clickedItem);
+        }
         var temp = getMousePos(canvas,e);
         leftClickPos.x = temp.x;
         leftClickPos.y = temp.y;
@@ -224,15 +225,19 @@
     
     function mapAnim(){
 
+        updateHPBar();
+        updateMobHpBar();
+        if (player.pos.inCombat == true) player.attack();
+        else if (player.pos.walking == true) player.run();
+        
 
-        if (player.pos.walking == true) player.run();
-
+        //random mob movement
         spawnPoints.forEach(e =>{
 
             e.mobGroups.forEach(f =>{
                 
                 f.mobs.forEach(g => {
-                    if (!g.pos.walking && !g.pos.attacking)
+                    if (!g.pos.walking && !g.pos.inCombat)
                         if (Math.random()> 0.995) 
                             g.goTo(getRandomCordsInRadius(f.x,f.y,f.mobPosRadius));
                     if (g.pos.walking) 
@@ -246,6 +251,50 @@
 
     drawAll();
     
+    function updateHPBar(){
+        var hpPercent = ((player.hp / player.maxHp) * 100) + '%';
+        document.getElementById("UIHpBar").style.width = hpPercent;
 
+        document.getElementById("UIHpValue").childNodes[0].replaceWith(document.createTextNode(player.hp + "/" + player.maxHp));
+    }
+
+    function updateMobHpBar(){
+        var ul = document.getElementById("mob-list");
+
+        ul.childNodes.forEach(e => {
+            var temp = e.id;
+            temp = temp.substring(3);
+
+            var mobID = temp % 10;
+            var groupID = ((temp - mobID) / 10) % 10;
+            var spawnPointID = (temp - mobID - groupID * 10) / 100;
+        
+            var target;
+
+            target = spawnPoints.find(e => e.id == spawnPointID);
+            target = target.mobGroups.find(f => f.groupId == groupID);
+            target = target.mobs.find(g => g.id == temp); //FIX MOBID!!!!!!
+
+            e.childNodes[0].childNodes[1].childNodes[1].childNodes[0].replaceWith(document.createTextNode(target.hp + "/" + target.maxHp));
+
+        });
+
+    
+    }
+
+    function attackMob(buttonData){
+        
+        var mobID = buttonData.dataset.mobid % 10;
+        var groupID = ((buttonData.dataset.mobid - mobID) / 10) % 10;
+        var spawnPointID = (buttonData.dataset.mobid - mobID - groupID*10) / 100;
+        
+        var target;
+
+        target = spawnPoints.find(e => e.id == spawnPointID);
+        target = target.mobGroups.find(f => f.groupId == groupID);
+        target = target.mobs.find(g => g.id == buttonData.dataset.mobid); //FIX MOBID!!!!!!
+        
+        player.startAttack(target);
+    }
 
 </script>
