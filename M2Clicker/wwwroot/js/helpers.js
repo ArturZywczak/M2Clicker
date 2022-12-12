@@ -92,3 +92,17 @@ function removeFromMobList(mob) {
     var item = document.getElementById("Mob" + mob.id);
     ul.removeChild(item);
 }
+
+
+//USER LOG
+function addToUserLog(newMsg){
+    var ul = document.getElementById("user-log");
+    var currentdate = new Date(); 
+    var datetime = "@ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds() + "."
+                + currentdate.getMilliseconds() + " | ";
+    ul.prepend(document.createTextNode(datetime + newMsg ));
+    ul.prepend(document.createElement('br'));
+}

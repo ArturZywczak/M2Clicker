@@ -45,6 +45,7 @@ ul.no-bullets {
     border: solid;
     border-width: 1px;
     border-color:gray;
+    overflow:hidden;
 }
 
 .circleBase {

@@ -16,7 +16,11 @@ class MobGroup {
     mobPosRadius = 50;
     mobs = [];
 
-
+    groupAttack(target){
+        this.mobs.forEach(e => {
+            e.startAttack(target);
+        })
+    }
 }
 
 class SpawnPoint {
@@ -79,11 +83,12 @@ class Unit {
 
     attackCD;
     autoAttackTarget = '';
-
+    dropAggro = 500;
 
     //METHODS
     goTo(newPos){
 
+        
         this.pos.toX = newPos.x; this.pos.toY = newPos.y;
         this.pos.a = (this.pos.toY-this.pos.y)/(this.pos.toX-this.pos.x);
         this.pos.b = this.pos.toY-(this.pos.a*this.pos.toX);
@@ -109,6 +114,7 @@ class Unit {
 
     //COMBAT
     startAttack(target) {
+        addToUserLog(this.name + " z id " + this.id + " chce wpierdolić " + target.name + " z id " + target.id);
         this.pos.inCombat = true;
         this.autoAttackTarget = target;
         this.attack();
@@ -128,18 +134,39 @@ class Unit {
         }
 
         this.attackCD -= 1;
-        if (this.attackCD == 0) this.attackCD = this.attackSpeed / 2;
+        this.dropAggro -= 1;
+        if (this.dropAggro <= 0) {
+            this.pos.inCombat = false;
+            this.autoAttackTarget = '';
+            this.goTo(new Position(100,100));
+            this.dropAggro = 500;
+            addToUserLog(this.name + " pierdoli to i wraca");
+        }
+        if (this.attackCD <= 0) this.attackCD = this.attackSpeed / 2;
     }
 
     hit(target) {
+        addToUserLog(this.name + " uderzył " + target.id);
         target.hp -= this.attackDmage;
+        target.takeDmage(this);
+    }
+
+    takeDmage(source){
+        addToUserLog(this.name + " oberwał, hp " + this.hp + "->" + (this.hp - source.attackDmage));
+        //this.hp -= source.attackDmage;
+        var mobID = this.id % 10;
+        var groupID = ((this.id - mobID) / 10) % 10;
+        var spawnPointID = (this.id - mobID - groupID*10) / 100;
+        if (this.autoAttackTarget == '' ) testGroupAttack(spawnPointID, groupID, source);
+        this.dropAggro = 500;
+        
     }
 }
 
 class Player extends Unit {
     constructor(newName, newPos, newId){
         super(newName, newPos, newId);
-        this.attackRange = 5;
+        this.attackRange = 100;
 
         this.hp = 1000;
         this.maxHp = 1000;
@@ -163,6 +190,9 @@ class Mob extends Unit {
 
         this.hp = 100;
         this.maxHp = 100;
+        this.attackRange = 5;
+
+        this.attackSpeed = 50 + Math.random(50);
     }
 
     speed = 50;
@@ -173,10 +203,9 @@ class Mob extends Unit {
     goldMin;
     goldMax;
     def;
-    attackSpeed;
     moveSpeed;
-    attackRange;
     dropItem;
+
 }
 
 class Position {

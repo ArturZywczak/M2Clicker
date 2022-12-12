@@ -10,19 +10,29 @@
 
 
 <div class="container bg-black" style="height:455px; min-width:1000px" oncontextmenu="return false;">
-    <div class="row" style="height:410px" >
+    <div class="row">
         <div class="col-auto bg-info" style="min-width:400px">
             <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;">
                 Your browser does not support the HTML canvas tag.
             </canvas>
         </div>
-        <div class="col bg-light overflow-auto h-100">
-            <ul id="mob-list" class="no-bullets"></ul>
+        <div class="col" >
+            <div class="row" style="height:455px">
+                <div class="col bg-light overflow-auto mh-100">
+                    <ul id="mob-list" class="no-bullets"></ul>
+                </div>
+            
+                <div class="col bg-light overflow-auto mh-100">
+                    <ul id="user-log" class="no-bullets">
+                        <li>Siema test</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row" style="height:45px">
         <div class="col-2 m-0">
-            <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#d45757;"><b id ="UIHpValue"style="font-size:smaller">75/100</b></div><span id="UIHpBar" style="width:75%; background-color:red"></span></div>
+            <div class="row bg-black interface-bar" style="height:15px;"><div class="interface-bar-tooltip" style="background:#d45757;"><b id ="UIHpValue"style="font-size:smaller">75/100</b></div><span id="UIHpBar" style="width:75%; background-color:red"></span></div>
             <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#5881e8;"><b style="font-size:smaller">89/100</b></div><span style="width:89%; background-color:blue"></span></div>
             <div class="row bg-black interface-bar" style="height:15px"><div class="interface-bar-tooltip" style="background:#e3e858;"><b style="font-size:smaller">100/100</b></div><span style="width:100%; background-color:yellow"></span></div>
         </div>
@@ -79,10 +89,10 @@
 
     //TEMP INIT, CREATE PLAYER, SPAWN POINTS, SELECTED MOB(LMB)
     const player = new Player("Gracz", new Position(200,250), 0);
-    const spawnPoints = [new SpawnPoint(100,100, 1),
-        new SpawnPoint(300,100, 2),
-        new SpawnPoint(100,300, 3),
-        new SpawnPoint(300,300, 4)
+    const spawnPoints = [new SpawnPoint(100,100, 0),
+        new SpawnPoint(300,100, 1),
+        new SpawnPoint(100,300, 2),
+        new SpawnPoint(300,300, 3)
     ];
     spawnPoints.forEach(e => {
         for (var i = 0; i<3; i++) e.addMobGroup();
@@ -237,11 +247,13 @@
             e.mobGroups.forEach(f =>{
                 
                 f.mobs.forEach(g => {
+                    if (g.pos.inCombat) g.attack();
+                    else if (g.pos.walking) g.run();
+
                     if (!g.pos.walking && !g.pos.inCombat)
                         if (Math.random()> 0.995) 
                             g.goTo(getRandomCordsInRadius(f.x,f.y,f.mobPosRadius));
-                    if (g.pos.walking) 
-                        g.run();
+
                 });
             });    
         });
@@ -252,8 +264,17 @@
     drawAll();
     
     function updateHPBar(){
-        var hpPercent = ((player.hp / player.maxHp) * 100) + '%';
-        document.getElementById("UIHpBar").style.width = hpPercent;
+
+        var hpPercent;
+
+        if (player.hp>0) {
+            hpPercent = ((player.hp / player.maxHp) * 100) + '%';
+            document.getElementById("UIHpBar").style.width = hpPercent;
+        }
+        else {
+            hpPercent = 0;
+            document.getElementById("UIHpBar").style.display = "none";
+        }
 
         document.getElementById("UIHpValue").childNodes[0].replaceWith(document.createTextNode(player.hp + "/" + player.maxHp));
     }
@@ -297,4 +318,7 @@
         player.startAttack(target);
     }
 
+function testGroupAttack(x, y, target){
+    spawnPoints[x].mobGroups[y].groupAttack(target);
+}
 </script>
