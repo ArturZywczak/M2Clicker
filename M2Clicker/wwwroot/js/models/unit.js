@@ -26,8 +26,6 @@
     pos;
 
     //NEW HERE
-    id;
-    name;
     level;
     st;
     iq;
@@ -39,11 +37,9 @@
 
     attackCD;
     autoAttackTarget = '';
-    dropAggro = 500;
 
     //METHODS
-    goTo(newPos) {
-
+    goTo(newPos) { //set new target position
 
         this.pos.toX = newPos.x; this.pos.toY = newPos.y;
         this.pos.a = (this.pos.toY - this.pos.y) / (this.pos.toX - this.pos.x);
@@ -57,7 +53,7 @@
 
     }
 
-    run() {
+    run() { //animation step toward new target
 
         if (Math.abs(this.pos.x - this.pos.toX + this.pos.y - this.pos.toY) > 1) {
             this.pos.x > this.pos.toX ? this.pos.x -= this.pos.step : this.pos.x += this.pos.step;
@@ -77,44 +73,11 @@
 
     }
 
-    attack() {
-
-        if (!isInRange(this, this.autoAttackTarget, this.attackRange)) this.goTo(this.autoAttackTarget.pos);
-        else {
-            this.pos.walking = false;
-            //jak jak nie ma cd to uderz cel
-            if (this.attackCD == this.attackSpeed / 2) this.hit(this.autoAttackTarget);
-            //jak jest to nic nie rób
-            else;
-            //zmniejsz cd
-        }
-
-        this.attackCD -= 1;
-        this.dropAggro -= 1;
-        if (this.dropAggro <= 0) {
-            this.pos.inCombat = false;
-            this.autoAttackTarget = '';
-            this.goTo(new Position(100, 100));
-            this.dropAggro = 500;
-            addToUserLog(this.name + " pierdoli to i wraca");
-        }
-        if (this.attackCD <= 0) this.attackCD = this.attackSpeed / 2;
-    }
-
     hit(target) {
         addToUserLog(this.name + " uderzył " + target.id);
         target.hp -= this.attackDmage;
         target.takeDmage(this);
     }
 
-    takeDmage(source) {
-        addToUserLog(this.name + " oberwał, hp " + this.hp + "->" + (this.hp - source.attackDmage));
-        //this.hp -= source.attackDmage;
-        var mobID = this.id % 10;
-        var groupID = ((this.id - mobID) / 10) % 10;
-        var spawnPointID = (this.id - mobID - groupID * 10) / 100;
-        if (this.autoAttackTarget == '') testGroupAttack(spawnPointID, groupID, source);
-        this.dropAggro = 500;
-
-    }
+    
 }
