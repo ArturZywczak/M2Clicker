@@ -61,18 +61,9 @@ function updateMobHpBar() {
     var ul = document.getElementById("mob-list");
 
     ul.childNodes.forEach(e => {
-        var temp = e.id;
-        temp = temp.substring(3);
 
-        var mobID = temp % 10;
-        var groupID = ((temp - mobID) / 10) % 10;
-        var spawnPointID = (temp - mobID - groupID * 10) / 100;
-
-        var target;
-
-        target = spawnPoints.find(e => e.id == spawnPointID);
-        target = target.mobGroups.find(f => f.groupId == groupID);
-        target = target.mobs.find(g => g.id == temp); //FIX MOBID!!!!!!
+        var target = spawnPoints[e.dataset.spawnid].getMob(e.dataset.groupid, e.dataset.mobid);
+        //var target = spawnPoints[e.dataset.spawnid].mobGroups[e.dataset.groupid].mobs[e.dataset.mobid];
 
         e.childNodes[0].childNodes[1].childNodes[1].childNodes[0].replaceWith(document.createTextNode(target.hp + "/" + target.maxHp));
 
@@ -85,8 +76,11 @@ function updateMobHpBar() {
 function addToMobList(mob) {
     var ul = document.getElementById("mob-list");
     var li = document.createElement("li");
-    li.setAttribute('id', "Mob" + mob.id);
+    li.setAttribute('id', "S" + mob.spawnPointID + "G" + mob.mobGroupID + "M" + mob.id);
     li.setAttribute('class', 'p-1');
+    li.setAttribute('data-mobid', mob.id);
+    li.setAttribute('data-groupid', mob.mobGroupID);
+    li.setAttribute('data-spawnid', mob.spawnPointID);
 
     //div container
     var bigDiv = document.createElement('div');
@@ -94,7 +88,7 @@ function addToMobList(mob) {
     //div z nazwą potwora
     var nameDiv = document.createElement('div');
     nameDiv.setAttribute('class', 'col-md-12 text-center bg-info');
-    nameDiv.appendChild(document.createTextNode(mob.name + " z id " + mob.id));
+    nameDiv.appendChild(document.createTextNode(mob.name + " S" + mob.spawnPointID + "G" + mob.mobGroupID + "M" + mob.id));
 
     //Div z przyciskami
     var buttonDiv = document.createElement('div');
@@ -106,6 +100,8 @@ function addToMobList(mob) {
     button.setAttribute('type', 'button');
     button.setAttribute('onClick', 'attackMob(this)');
     button.setAttribute('data-mobID', mob.id);
+    button.setAttribute('data-groupID', mob.mobGroupID);
+    button.setAttribute('data-spawnID', mob.spawnPointID);
     button.appendChild(document.createTextNode('Atakuj'));
 
     //DIV wypisane HP
@@ -127,7 +123,7 @@ function addToMobList(mob) {
 
 function removeFromMobList(mob) {
     var ul = document.getElementById("mob-list");
-    var item = document.getElementById("Mob" + mob.id);
+    var item = document.getElementById("S" + mob.spawnPointID + "G" + mob.mobGroupID + "M" + mob.id);
     ul.removeChild(item);
 }
 

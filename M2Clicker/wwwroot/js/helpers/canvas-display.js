@@ -55,7 +55,7 @@ function drawMobs() {
 
                 var isOnList = false;
                 ul.childNodes.forEach(h => {
-                    if ((typeof h.id !== 'undefined') && h.id == "Mob" + g.id) {
+                    if ((typeof h.id !== 'undefined') && h.id == "S" + g.spawnPointID + "G" + g.mobGroupID + "M" + g.id) {
                         isOnList = true;
                         ctx.fillStyle = "orange";
                     }
@@ -69,11 +69,11 @@ function drawMobs() {
                 else if (isNearLeftClick) {
                     addToMobList(g);
                     clickedItem = g;
-
+                    leftClickPos.x = null; leftClickPos.y = null;
                 }
                 else {
 
-                    if (isOnList && g != clickedItem) {
+                    if (isOnList && typeof clickedItem != "undefined" && g.uniqueID != clickedItem.uniqueID) {
                         removeFromMobList(g);
                     }
                 }
@@ -89,9 +89,7 @@ function drawMobs() {
 
 function mapAnim() { //stuff that happens every frame, only calculating stuff no drawing
 
-    updateHPBar();
-    updateMobHpBar();
-    updateEXPBar();
+
     if (player.pos.inCombat == true) player.attack();
     else if (player.pos.walking == true) player.run();
 
@@ -113,6 +111,10 @@ function mapAnim() { //stuff that happens every frame, only calculating stuff no
         });
     });
 
+    updateHPBar();
+    updateMobHpBar();
+    updateEXPBar();
+
     drawAll();
 }
 
@@ -131,14 +133,14 @@ function onLeftClick(e) {
         var ul = document.getElementById("mob-list");
         var isOnList = false;
         ul.childNodes.forEach(h => {
-            if ((typeof h.id != 'undefined') && h.id == "Mob" + clickedItem.id) {
+            if ((typeof h.id != 'undefined') && h.id == "S" + clickedItem.spawnPointID + "G" + clickedItem.mobGroupID + "M" + clickedItem.id) {
                 isOnList = true;
-                return false;
             }
         });
 
         if (isOnList) removeFromMobList(clickedItem);
     }
+
     var temp = getMousePos(canvas, e);
     leftClickPos.x = temp.x;
     leftClickPos.y = temp.y;

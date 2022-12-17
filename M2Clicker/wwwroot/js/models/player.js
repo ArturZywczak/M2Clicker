@@ -1,17 +1,16 @@
 ﻿class Player extends Unit {
-    constructor(newName, newPos, newId) {
-        super(newName, newPos, newId);
-        this.attackRange = 100;
 
-        this.hp = 1000;
-        this.maxHp = 1000;
-
-        this.level = 1;
-        this.exp = 999;
-        this.levelNext = 1000;
-    }
-
-    speed = 100;
+    /* INHERITED
+     * 
+     * id; name; 
+     * hp; maxHp;
+     * dmageMin; dmageMax; attackSpeed; attackRange;
+     * def; moveSpeed;
+     * pos;
+     * level; exp;
+     * st;iq;ht;dx;
+     * attackCD; autoAttackTarget;
+    */
 
     //NEW HERE
     mp;
@@ -21,6 +20,24 @@
     gold;
     levelNext;
 
+    constructor(newName, newPos, newId) {
+        super(newName, newPos, newId);
+        this.attackRange = 100;
+        this.dmageMin = 15;
+
+        this.moveSpeed = 100;
+        this.hp = 1000;
+        this.maxHp = 1000;
+
+        this.level = 1;
+        this.exp = 999;
+        this.levelNext = 1000;
+    }
+
+    /* INHERITED METHODS
+     * goTo(target); run();
+     * startAttack(target); hit();
+    */
 
     attack(){
 
@@ -40,7 +57,7 @@
     }
 
     takeDmage(source) {
-        addToUserLog(this.name + " oberwał, hp " + this.hp + "->" + (this.hp - source.attackDmage));
+        addToUserLog(this.name + " oberwał, hp " + this.hp + "->" + (this.hp - source.dmageMin));
 
 
         //check if dead
@@ -48,6 +65,8 @@
             //TODO De-aggro all atacking mobs
             //disable all actions
         }
+
+        return true;
     }
 
     getExperience(expPoints) {

@@ -1,31 +1,17 @@
 ﻿class Unit {
-    constructor(newName, newPos, newId) {
-        //TODO, tymczasowo jakieś losowe wartości
-        //HERE PARSER Z JSONA?        
-        this.id = newId;
-        this.name = newName;
-        this.hp = 100;
-        this.attackDmage = 5;
-        this.attackSpeed = 100;
-
-        this.pos = newPos;
-
-        this.attackCD = this.attackSpeed / 2;
-
-    }
 
     id;
     name;
-    hp;
-    attackDmage;
+
+    dmageMin;
+    dmageMax;
     attackSpeed;
     attackRange;
-    armor;
-    speed;
+    def;
+    moveSpeed;
 
     pos;
 
-    //NEW HERE
     level;
     st;
     iq;
@@ -38,6 +24,24 @@
     attackCD;
     autoAttackTarget = '';
 
+
+    constructor(newName, newPos, newId) {
+        //TODO, tymczasowo jakieś losowe wartości
+        //HERE PARSER Z JSONA?        
+        this.id = newId;
+        this.name = newName;
+        this.dmageMin = 5; //TODO, temp wszędzie bije tylko za min
+        this.dmageMax = 7;
+        this.attackSpeed = 100;
+
+        this.pos = newPos;
+
+        this.attackCD = this.attackSpeed / 2;
+
+    }
+
+
+
     //METHODS
     goTo(newPos) { //set new target position
 
@@ -46,7 +50,7 @@
         this.pos.b = this.pos.toY - (this.pos.a * this.pos.toX);
 
         var distance = Math.pow(Math.pow(this.pos.x - this.pos.toX, 2) + Math.pow(this.pos.y - this.pos.toY, 2), 1 / 2);
-        this.pos.step = Math.abs(this.pos.toX - this.pos.x) * (this.speed / 100) / Math.ceil(distance / 2); //PRĘDKOŚĆ PORUSZANIA, 10ms-1j, dlatego distance*10(aby uzyskać ms potrzebne do pokonania takiego dystansu) /20 (krok animacji jest co 20ms);
+        this.pos.step = Math.abs(this.pos.toX - this.pos.x) * (this.moveSpeed / 100) / Math.ceil(distance / 2); //PRĘDKOŚĆ PORUSZANIA, 10ms-1j, dlatego distance*10(aby uzyskać ms potrzebne do pokonania takiego dystansu) /20 (krok animacji jest co 20ms);
 
         this.pos.walking = true;
         this.run();
@@ -74,9 +78,14 @@
     }
 
     hit(target) {
-        addToUserLog(this.name + " uderzył " + target.id);
-        target.hp -= this.attackDmage;
-        target.takeDmage(this);
+        
+
+        addToUserLog(this.name + " uderzył " + target.name);
+        target.hp -= this.dmageMin;
+        if (!target.takeDmage(this)) { //if target died
+            this.pos.inCombat = false;
+            this.autoAttackTarget = '';
+        }
     }
 
     

@@ -40,6 +40,7 @@ new SpawnPoint(300, 100, 1),
 new SpawnPoint(100, 300, 2),
 new SpawnPoint(300, 300, 3)
 ];
+
 spawnPoints.forEach(e => {
     for (var i = 0; i < 3; i++) e.addMobGroup();
 });

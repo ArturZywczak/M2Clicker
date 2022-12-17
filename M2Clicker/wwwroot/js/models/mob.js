@@ -1,26 +1,50 @@
 ﻿class Mob extends Unit {
-    constructor(newName, newPos, newId) {
-        super(newName, newPos, newId);
 
-        this.hp = 100;
-        this.maxHp = 100;
-        this.attackRange = 5;
-
-        this.attackSpeed = 50 + Math.random(50);
-    }
-
-    speed = 50;
+    /* INHERITED
+     * 
+     * id; name; 
+     * hp; maxHp;
+     * dmageMin; dmageMax; attackSpeed; attackRange;
+     * def; moveSpeed;
+     * pos;
+     * level; exp;
+     * st;iq;ht;dx;
+     * attackCD; autoAttackTarget;
+    */
 
     //NEW HERE
-    dmageMin;
-    dmageMax;
+
     goldMin;
     goldMax;
-    def;
-    moveSpeed;
+
     dropItem;
 
     dropAggro = 500;
+
+    spawnPointID;
+    mobGroupID;
+    uniqueID;
+
+    constructor(newName, newPos, spawnPoint, mobGroup) {
+        super(newName, newPos, mobGroup.mobs.length);
+        this.spawnPointID = spawnPoint.id;
+        this.mobGroupID = mobGroup.id;
+
+        this.hp = 100;
+        this.maxHp = 100;
+        this.attackRange = 10;
+        this.moveSpeed = 50;
+        this.attackSpeed = 50 + Math.random(50);
+
+        this.exp = 120;
+
+        this.uniqueID = "S" + this.spawnPointID + "G" + this.mobGroupID + "M" + this.id;
+    }
+
+    /* INHERITED METHODS
+     * goTo(target); run();
+     * startAttack(target); hit();
+    */
 
     attack() {
 
@@ -40,7 +64,7 @@
         if (this.dropAggro <= 0) {
             this.pos.inCombat = false;
             this.autoAttackTarget = '';
-            this.goTo(new Position(100, 100));
+            this.goTo(new Position(100, 100)); //TODO go back to your mob group spawn range
             this.dropAggro = 500;
             addToUserLog(this.name + " pierdoli to i wraca");
         }
@@ -48,15 +72,11 @@
     }
 
     takeDmage(source) {
-        addToUserLog(this.name + " oberwał, hp " + this.hp + "->" + (this.hp - source.attackDmage));
-
-
-        var mobID = this.id % 10;
-        var groupID = ((this.id - mobID) / 10) % 10;
-        var spawnPointID = (this.id - mobID - groupID * 10) / 100;
+        addToUserLog(this.name + " oberwał, hp " + this.hp + "->" + (this.hp - source.dmageMin));
 
         //if one mob in group gets hit every other starts attacking
-        if (this.autoAttackTarget == '') testGroupAttack(spawnPointID, groupID, source);
+        if (this.autoAttackTarget == '') testGroupAttack(this.spawnPointID, this.mobGroupID, source);
+
         this.dropAggro = 500;
 
         //check if dead
@@ -64,8 +84,12 @@
             //TODO give xp to player
             source.getExperience(this.exp);
             //remove yourself from mob-list
-            removeFromMobList(this);
             addToUserLog(this.name + " z id " + this.id + " zdechł.");
+            killMob(this);
+
+            return false;
         }
+
+        return true;
     }
 }
