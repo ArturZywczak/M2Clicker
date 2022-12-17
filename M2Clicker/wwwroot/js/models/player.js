@@ -6,6 +6,7 @@
         this.hp = 1000;
         this.maxHp = 1000;
 
+        this.level = 1;
         this.exp = 999;
         this.levelNext = 1000;
     }
@@ -34,6 +35,8 @@
 
         this.attackCD -= 1;
         this.dropAggro -= 1;
+
+        if (this.attackCD <= 0) this.attackCD = this.attackSpeed / 2;
     }
 
     takeDmage(source) {
@@ -50,6 +53,11 @@
     getExperience(expPoints) {
         this.exp += expPoints;
         //TODO check if level up
+        if (this.exp >= this.levelNext) {
+            this.level += 1;
+            this.exp = this.exp - this.levelNext;
+        }
+
     }
 
 }

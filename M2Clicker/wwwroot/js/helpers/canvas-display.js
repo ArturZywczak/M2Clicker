@@ -87,39 +87,7 @@ function drawMobs() {
     leftClickPos.x = null; leftClickPos.y = null;
 }
 
-
-
-function onRightClick(e) {
-
-    player.pos.inCombat = false;
-    player.goTo(getMousePos(canvas, e));
-    leftClickPos.x = null;
-    leftClickPos.y = null;
-
-}
-
-function onLeftClick(e) {
-    if (typeof clickedItem != 'undefined') {
-        var ul = document.getElementById("mob-list");
-        var isOnList = false;
-        ul.childNodes.forEach(h => {
-            if ((typeof h.id != 'undefined') && h.id == "Mob" + clickedItem.id) {
-                isOnList = true;
-                return false;
-            }
-        });
-
-        if (isOnList) removeFromMobList(clickedItem);
-    }
-    var temp = getMousePos(canvas, e);
-    leftClickPos.x = temp.x;
-    leftClickPos.y = temp.y;
-
-}
-
-
-
-function mapAnim() {
+function mapAnim() { //stuff that happens every frame, only calculating stuff no drawing
 
     updateHPBar();
     updateMobHpBar();
@@ -146,4 +114,33 @@ function mapAnim() {
     });
 
     drawAll();
+}
+
+//CANVAS EVENTS
+function onRightClick(e) {
+
+    player.pos.inCombat = false;
+    player.goTo(getMousePos(canvas, e));
+    leftClickPos.x = null;
+    leftClickPos.y = null;
+
+}
+
+function onLeftClick(e) {
+    if (typeof clickedItem != 'undefined') {
+        var ul = document.getElementById("mob-list");
+        var isOnList = false;
+        ul.childNodes.forEach(h => {
+            if ((typeof h.id != 'undefined') && h.id == "Mob" + clickedItem.id) {
+                isOnList = true;
+                return false;
+            }
+        });
+
+        if (isOnList) removeFromMobList(clickedItem);
+    }
+    var temp = getMousePos(canvas, e);
+    leftClickPos.x = temp.x;
+    leftClickPos.y = temp.y;
+
 }

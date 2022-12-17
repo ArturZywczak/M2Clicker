@@ -64,6 +64,8 @@
             //TODO give xp to player
             source.getExperience(this.exp);
             //remove yourself from mob-list
+            removeFromMobList(this);
+            addToUserLog(this.name + " z id " + this.id + " zdechł.");
         }
     }
 }

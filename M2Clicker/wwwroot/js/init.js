@@ -19,8 +19,10 @@ require("/js/models/mob.js");
 require("/js/models/mob-group.js");
 require("/js/models/spawn-point.js");
 
-require("/js/canvas-display.js");
-require("/js/helpers.js");
+require("/js/helpers/canvas-display.js");
+require("/js/helpers/other-helpers.js");
+require("/js/helpers/mob-behavior.js");
+require("/js/helpers/user-display.js");
 
 
 
@@ -51,95 +53,4 @@ canvas.addEventListener("contextmenu", onRightClick);
 canvas.addEventListener("click", onLeftClick);
 
 
-
 drawAll();
-
-function updateHPBar() {
-
-    var hpPercent;
-
-    if (player.hp > 0) {
-        hpPercent = ((player.hp / player.maxHp) * 100) + '%';
-        document.getElementById("UIHpBar").style.width = hpPercent;
-    }
-    else {
-        hpPercent = 0;
-        document.getElementById("UIHpBar").style.display = "none";
-    }
-
-    document.getElementById("UIHpValue").childNodes[0].replaceWith(document.createTextNode(player.hp + "/" + player.maxHp));
-}
-
-function updateMobHpBar() {
-    var ul = document.getElementById("mob-list");
-
-    ul.childNodes.forEach(e => {
-        var temp = e.id;
-        temp = temp.substring(3);
-
-        var mobID = temp % 10;
-        var groupID = ((temp - mobID) / 10) % 10;
-        var spawnPointID = (temp - mobID - groupID * 10) / 100;
-
-        var target;
-
-        target = spawnPoints.find(e => e.id == spawnPointID);
-        target = target.mobGroups.find(f => f.groupId == groupID);
-        target = target.mobs.find(g => g.id == temp); //FIX MOBID!!!!!!
-
-        e.childNodes[0].childNodes[1].childNodes[1].childNodes[0].replaceWith(document.createTextNode(target.hp + "/" + target.maxHp));
-
-    });
-
-
-}
-
-function attackMob(buttonData) {
-
-    var mobID = buttonData.dataset.mobid % 10;
-    var groupID = ((buttonData.dataset.mobid - mobID) / 10) % 10;
-    var spawnPointID = (buttonData.dataset.mobid - mobID - groupID * 10) / 100;
-
-    var target;
-
-    target = spawnPoints.find(e => e.id == spawnPointID);
-    target = target.mobGroups.find(f => f.groupId == groupID);
-    target = target.mobs.find(g => g.id == buttonData.dataset.mobid); //FIX MOBID!!!!!!
-
-    player.startAttack(target);
-}
-
-function testGroupAttack(x, y, target) {
-    spawnPoints[x].mobGroups[y].groupAttack(target);
-}
-
-function updateEXPBar() {
-
-    var expPercent;
-
-    expPercent = ((player.exp / player.levelNext) * 100);
-    document.getElementById("expValue").childNodes[0].replaceWith(document.createTextNode("Doświadczenie: "+ expPercent + '%'));
-
-
-
-    expBall = [0, 0, 0, 0];
-    for (var i = 0; i < 4; i++) {
-
-        if (expPercent <= 0) expBall[i] = 0;
-        else {
-            if (expPercent > 25) {
-                expBall[i] = 100;
-            }
-            else {
-                expBall[i] = (expPercent * 100) / 25;
-            }
-        }
-        expPercent -= 25;
-        expBall[i] = 100 - expBall[i];
-
-        var tempExpCircleName = "expCircle" + (i+1);
-        document.getElementById(tempExpCircleName).style.background = "linear-gradient( black " + expBall[i] + "%, yellow 0%)";
-        var test = 3;
-    }
-
-}
