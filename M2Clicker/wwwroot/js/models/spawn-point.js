@@ -20,6 +20,6 @@
     getMob(groupId, mobId) {
         var mobGroup = this.mobGroups.find(e => e.id == groupId);
         if (typeof mobGroup == undefined) return false;
-        return typeof mobGroup.mobs.find(e => e.id = mobId) == undefined ? false : mobGroup.mobs.find(e => e.id = mobId);
+        return typeof mobGroup.mobs.find(e => e.id == mobId) == undefined ? false : mobGroup.mobs.find(e => e.id == mobId);
     }
 }

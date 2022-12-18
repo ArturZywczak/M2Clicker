@@ -42,7 +42,7 @@ new SpawnPoint(300, 300, 3)
 ];
 
 spawnPoints.forEach(e => {
-    for (var i = 0; i < 3; i++) e.addMobGroup();
+    for (var i = 0; i < 1; i++) e.addMobGroup();
 });
 const leftClickPos = new Position(-1, -1);
 var clickedItem;

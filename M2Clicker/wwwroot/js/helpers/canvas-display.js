@@ -49,33 +49,43 @@ function drawMobs() {
 
             f.mobs.forEach(g => {
                 var isNearPlayer = isInRange(player, g, player.attackRange);
+
                 var isNearLeftClick;
-                isNearLeftClick = leftClickPos.x == null ? false : isInRange(leftClickPos, g, 6);
+                if (leftClickPos.x == null) {
+                    if (typeof clickedItem != 'undefined' && clickedItem.uniqueID == g.uniqueID) {
+                        isNearLeftClick = true;
+                    }
+                    else {
+                        isNearLeftClick = false;
+                    }
+                }
+                else {
+                    isNearLeftClick = isInRange(leftClickPos, g, 6);
+                }
                 ctx.fillStyle = "red";
 
                 var isOnList = false;
                 ul.childNodes.forEach(h => {
-                    if ((typeof h.id !== 'undefined') && h.id == "S" + g.spawnPointID + "G" + g.mobGroupID + "M" + g.id) {
+                    if (h.id == (g.uniqueID)) {
                         isOnList = true;
-                        ctx.fillStyle = "orange";
+
                     }
                 });
 
-                if (isNearPlayer) {
-                    if (!isOnList) {
+                if (isNearPlayer && !isOnList) {
                         addToMobList(g);
-                    }
+                        isOnList = true;
                 }
-                else if (isNearLeftClick) {
+                if (isNearLeftClick && !isOnList) {
                     addToMobList(g);
                     clickedItem = g;
                     leftClickPos.x = null; leftClickPos.y = null;
+                    isOnList = true;
                 }
-                else {
 
-                    if (isOnList && typeof clickedItem != "undefined" && g.uniqueID != clickedItem.uniqueID) {
-                        removeFromMobList(g);
-                    }
+                if (isOnList) {
+                    ctx.fillStyle = "orange";
+                    if (!isNearLeftClick && !isNearPlayer) removeFromMobList(g);
                 }
 
                 ctx.fillRect(g.pos.x - 2.5, g.pos.y - 2.5, 5, 5);
@@ -133,13 +143,16 @@ function onLeftClick(e) {
         var ul = document.getElementById("mob-list");
         var isOnList = false;
         ul.childNodes.forEach(h => {
-            if ((typeof h.id != 'undefined') && h.id == "S" + clickedItem.spawnPointID + "G" + clickedItem.mobGroupID + "M" + clickedItem.id) {
+            if (h.id == ("S" + clickedItem.spawnPointID + "G" + clickedItem.mobGroupID + "M" + clickedItem.id)) {
                 isOnList = true;
             }
         });
 
         if (isOnList) removeFromMobList(clickedItem);
+        clickedItem  = undefined;
     }
+
+    
 
     var temp = getMousePos(canvas, e);
     leftClickPos.x = temp.x;

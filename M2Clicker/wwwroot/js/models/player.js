@@ -22,7 +22,7 @@
 
     constructor(newName, newPos, newId) {
         super(newName, newPos, newId);
-        this.attackRange = 100;
+        this.attackRange = 20;
         this.dmageMin = 15;
 
         this.moveSpeed = 100;

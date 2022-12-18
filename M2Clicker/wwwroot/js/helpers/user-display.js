@@ -63,7 +63,6 @@ function updateMobHpBar() {
     ul.childNodes.forEach(e => {
 
         var target = spawnPoints[e.dataset.spawnid].getMob(e.dataset.groupid, e.dataset.mobid);
-        //var target = spawnPoints[e.dataset.spawnid].mobGroups[e.dataset.groupid].mobs[e.dataset.mobid];
 
         e.childNodes[0].childNodes[1].childNodes[1].childNodes[0].replaceWith(document.createTextNode(target.hp + "/" + target.maxHp));
 
